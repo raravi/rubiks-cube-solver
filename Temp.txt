@@ -1,0 +1,103 @@
+================================================================
+=========================     UP     ===========================
+================================================================
+
+System.out.println("\n\nAfter Up Move : " + makeMove(41));
+
+
+// Position of Current Cube - After Up Move
+/*
+After Up Move : true
+    bef     bf      bfc
+    ef      f       fc
+    efd     fd      fcd
+    be      b       bc
+    e       bfcaed  c
+    ed      d       cd
+    bae     ba      bca
+    ae      a       ca
+    aed     ad      cad
+*/
+for(int i=0;i<3;i++){
+  for(int j=0;j<3;j++){
+    for(int k=0;k<3;k++)
+      System.out.print(currentCube[i][j][k] + "\t");
+    System.out.println("");
+  }
+}
+
+
+================================================================
+=========================    Down    ===========================
+================================================================
+
+System.out.println("\n\nAfter Down Move : " + makeMove(42));
+
+// Position of Current Cube - After Down Move
+/*
+After Down Move : true
+  dea     da      dac
+  ea      a       ac
+  eab     ab      acb
+  de      d       dc
+  e       dacfeb  c
+  eb      b       cb
+  dfe     df      dcf
+  fe      f       cf
+  feb     fb      cfb
+*/
+for(int i=0;i<3;i++){
+  for(int j=0;j<3;j++){
+    for(int k=0;k<3;k++)
+      System.out.print(currentCube[i][j][k] + "\t");
+    System.out.println("");
+  }
+}
+
+System.out.println("\n\nAfter Inverse Move : " + makeMove(42));
+
+// Position of Current Cube - After Inverse Move = 2 Down Moves
+/*
+After Inverse Move : true
+    fed     fd      fdc
+    ed      d       dc
+    eda     da      dca
+    fe      f       fc
+    e       fdcbea  c
+    ea      a       ca
+    fbe     fb      fcb
+    be      b       cb
+    bea     ba      cba
+  */
+for(int i=0;i<3;i++){
+  for(int j=0;j<3;j++){
+    for(int k=0;k<3;k++)
+      System.out.print(currentCube[i][j][k] + "\t");
+    System.out.println("");
+  }
+}
+
+System.out.println("\n\nAfter Up Move : " + makeMove(42));
+
+// Position of Current Cube - After Up Move = 3 Down Moves
+/*
+After Up Move : true
+    bef     bf      bfc
+    ef      f       fc
+    efd     fd      fcd
+    be      b       bc
+    e       bfcaed  c
+    ed      d       cd
+    bae     ba      bca
+    ae      a       ca
+    aed     ad      cad
+  */
+for(int i=0;i<3;i++){
+  for(int j=0;j<3;j++){
+    for(int k=0;k<3;k++)
+      System.out.print(currentCube[i][j][k] + "\t");
+    System.out.println("");
+  }
+}
+
+================================================================
