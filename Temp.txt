@@ -1,9 +1,35 @@
 ================================================================
-=========================     UP     ===========================
+====================   INVERSE(VERTICAL)   =====================
+================================================================
+
+System.out.println("\n\nAfter Inverse Move : " + makeMove(43));
+
+// Position of Current Cube - After Inverse Move
+/*
+After Inverse Move : true
+    fed     fd      fdc
+    ed      d       dc
+    eda     da      dca
+    fe      f       fc
+    e       fdcbea  c
+    ea      a       ca
+    fbe     fb      fcb
+    be      b       cb
+    bea     ba      cba
+*/
+for ( int i=0;i<3;i++ ){
+  for ( int j=0;j<3;j++ ){
+    for ( int k=0;k<3;k++ )
+      System.out.print(currentCube[i][j][k] + "\t");
+    System.out.println("");
+  }
+}
+
+================================================================
+==========================     UP     ==========================
 ================================================================
 
 System.out.println("\n\nAfter Up Move : " + makeMove(41));
-
 
 // Position of Current Cube - After Up Move
 /*
@@ -28,7 +54,7 @@ for(int i=0;i<3;i++){
 
 
 ================================================================
-=========================    Down    ===========================
+==========================    Down    ==========================
 ================================================================
 
 System.out.println("\n\nAfter Down Move : " + makeMove(42));
