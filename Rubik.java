@@ -34,40 +34,34 @@ public class Rubik{
 
     System.out.println(moveToMake + " " + moveToMake / 10 + " " + moveToMake % 10);
 
-    if(moveToMake / 10 > 4) // First Part of Move
+    if ( moveToMake / 10 > 4 ) // First Part of Move
       verticalOrHorizontal = true;
     partsToMove = (moveToMake / 10) % 4; // Cube or Row
     move = moveToMake % 10;// Second Part of Move
 
     // TODO Transpose the cube according to the move
-    if(verticalOrHorizontal == false) { // Vertical
-      if(move == 1) { // Up
+    if ( verticalOrHorizontal == false ) { // Vertical
+      if ( move == 1 ) { // Up
         System.out.println("Up: verticalOrHorizontal: "+verticalOrHorizontal + " " +
                            "partsToMove: "+partsToMove + " " +
                            "move: "+move);
-        for( int j = 0 ; j < 3 ; j++ ) {
+        for ( int j = 0 ; j < 3 ; j++ ) {
            tempOddRow[j]  = currentCube[oddMove[4]][oddMove[5]][j];
            tempEvenRow[j] = currentCube[evenMove[4]][evenMove[5]][j];
-           //System.out.println(tempOddRow[j]+" "+tempEvenRow[j]);
         }
-        for( int i = 1 ; i < 4 ; i++ ) {
+        for ( int i = 1 ; i < 4 ; i++ ) {
           for ( int j = 0 ; j < 3 ; j++ ) {
-          currentCube[oddMove[i-1]][oddMove[i]][j]   = currentCube[oddMove[i]][oddMove[i+1]][j];
-          currentCube[evenMove[i-1]][evenMove[i]][j] = currentCube[evenMove[i]][evenMove[i+1]][j];
+            currentCube[oddMove[i-1]][oddMove[i]][j]   = currentCube[oddMove[i]][oddMove[i+1]][j];
+            currentCube[evenMove[i-1]][evenMove[i]][j] = currentCube[evenMove[i]][evenMove[i+1]][j];
           }
         }
-        for( int j = 0 ; j < 3 ; j++ ) {
+        for ( int j = 0 ; j < 3 ; j++ ) {
           currentCube[oddMove[3]][oddMove[4]][j]   = tempOddRow[j];
           currentCube[evenMove[3]][evenMove[4]][j] = tempEvenRow[j];
         }
-        // Position of Current Cube - After Move
-        /*for(int i=0;i<3;i++)
-        for(int j=0;j<3;j++){
-        for(int k=0;k<3;k++)
-        System.out.print(currentCube[i][j][k] + "\t");
-        System.out.println("");
-        }*/
-        /*
+        
+        /* Position of Current Cube - After Move 41
+
         ebf     bf      bcf   ->  bef     bf      bfc
         ef      f       cf    ->  ef      f       fc
         def     df      cdf   ->  efd     fd      fcd
@@ -79,6 +73,7 @@ public class Rubik{
         aeb     ab      abc   ->  bae     ba      bca
         ae      a       ac    ->  ae      a       ca
         ade     ad      acd   ->  aed     ad      cad */
+
         currentCube[0][0][0] = currentCube[0][0][0].substring(1,2) + currentCube[0][0][0].substring(0,1) + currentCube[0][0][0].substring(2);
         //currentCube[0][0][1] = currentCube[0][0][1].substring() + currentCube[0][0][1].substring();
         currentCube[0][0][2] = currentCube[0][0][2].substring(0,1) + currentCube[0][0][2].substring(2) + currentCube[0][0][2].substring(1,2);
@@ -115,50 +110,40 @@ public class Rubik{
         currentCube[2][2][0] = currentCube[2][2][0].substring(0,1) + currentCube[2][2][0].substring(2) + currentCube[2][2][0].substring(1,2);
         //currentCube[2][2][1] = currentCube[2][2][1].substring() + currentCube[2][2][1].substring();
         currentCube[2][2][2] = currentCube[2][2][2].substring(1,2) + currentCube[2][2][2].substring(0,1) + currentCube[2][2][2].substring(2);
-
       }
-      else if(move == 2) { // Down
+      else if ( move == 2 ) { // Down
         System.out.println("Down: verticalOrHorizontal: "+verticalOrHorizontal + " " +
                            "partsToMove: "+partsToMove + " " +
                            "move: "+move);
-        for( int j = 0 ; j < 3 ; j++ ) {
+        for ( int j = 0 ; j < 3 ; j++ ) {
           tempOddRow[j]  = currentCube[oddMove[4]][oddMove[5]][j];
           tempEvenRow[j] = currentCube[evenMove[4]][evenMove[5]][j];
-          //System.out.println(tempOddRow[j]+" "+tempEvenRow[j]);
         }
-        for( int i = 4 ; i > 1 ; i-- ) {
-          //aaa
+        for ( int i = 4 ; i > 1 ; i-- ) {
           for ( int j = 0 ; j < 3 ; j++ ) {
             currentCube[oddMove[i]][oddMove[i+1]][j]   = currentCube[oddMove[i-1]][oddMove[i]][j];
             currentCube[evenMove[i]][evenMove[i+1]][j] = currentCube[evenMove[i-1]][evenMove[i]][j];
           }
         }
-        for( int j = 0 ; j < 3 ; j++ ) {
+        for ( int j = 0 ; j < 3 ; j++ ) {
           currentCube[oddMove[1]][oddMove[2]][j]   = tempOddRow[j];
           currentCube[evenMove[1]][evenMove[2]][j] = tempEvenRow[j];
         }
-        // Position of Current Cube - After Move
-        /*for(int i=0;i<3;i++)
-          for(int j=0;j<3;j++){
-            for(int k=0;k<3;k++)
-              System.out.print(currentCube[i][j][k] + "\t");
-            System.out.println("");
-          }*/
-          /* After move of 42 - Down
 
-          ade     ad      acd   ->  dea     da      dac
-          ae      a       ac    ->  ea      a       ac
-          aeb     ab      abc   ->  eab     ab      acb
+        /* Position of Current Cube - After Move 42
 
-          de      d       cd    ->  de      d       dc
-          e       abcdef  c     ->  e       dacfeb  c
-          eb      b       bc    ->  eb      b       cb
+        ade     ad      acd   ->  dea     da      dac
+        ae      a       ac    ->  ea      a       ac
+        aeb     ab      abc   ->  eab     ab      acb
 
-          def     df      cdf   ->  dfe     df      dcf
-          ef      f       cf    ->  fe      f       cf
-          ebf     bf      bcf   ->  feb     fb      cfb
+        de      d       cd    ->  de      d       dc
+        e       abcdef  c     ->  e       dacfeb  c
+        eb      b       bc    ->  eb      b       cb
 
-          */
+        def     df      cdf   ->  dfe     df      dcf
+        ef      f       cf    ->  fe      f       cf
+        ebf     bf      bcf   ->  feb     fb      cfb */
+
         currentCube[0][0][0] = currentCube[0][0][0].substring(1) + currentCube[0][0][0].substring(0,1);
         currentCube[0][0][1] = currentCube[0][0][1].substring(1) + currentCube[0][0][1].substring(0,1);
         currentCube[0][0][2] = currentCube[0][0][2].substring(2) + currentCube[0][0][2].substring(0,2);
@@ -195,13 +180,12 @@ public class Rubik{
         currentCube[2][2][0] = currentCube[2][2][0].substring(2) + currentCube[2][2][0].substring(0,2);
         currentCube[2][2][1] = currentCube[2][2][1].substring(1) + currentCube[2][2][1].substring(0,1);
         currentCube[2][2][2] = currentCube[2][2][2].substring(1) + currentCube[2][2][2].substring(0,1);
-
       }
-      else if(move == 3) { // Inverse
+      else if ( move == 3 ) { // Inverse
         System.out.println("Inv Ver: verticalOrHorizontal: "+verticalOrHorizontal + " " +
                            "partsToMove: "+partsToMove + " " +
                            "move: "+move);
-        for( int i = 0 ; i < 2 ; i++ ) {
+        for ( int i = 0 ; i < 2 ; i++ ) {
           for ( int j = 0 ; j < 3 ; j++ ) {
 
             tempOddRow[j]  = currentCube[oddMove[i]][oddMove[i+1]][j];
@@ -216,78 +200,72 @@ public class Rubik{
           }
         }
 
-        // Position of Current Cube - After Move
-        /*for(int i=0;i<3;i++)
-        for(int j=0;j<3;j++){
-        for(int k=0;k<3;k++)
-        System.out.print(currentCube[i][j][k] + "\t");
-        System.out.println("");
-        }*/
-        /*
+        /* Position of Current Cube - After Move
+
         def     df      cdf ->  fed     fd      fdc
         de      d       cd  ->  ed      d       dc
         ade     ad      acd ->  eda     da      dca
+
         ef      f       cf  ->  fe      f       fc
         e       abcdef  c   ->  e       fdcbea  c
         ae      a       ac  ->  ea      a       ca
+
         ebf     bf      bcf ->  fbe     fb      fcb
         eb      b       bc  ->  be      b       cb
-        aeb     ab      abc ->  bea     ba      cba
-        */
+        aeb     ab      abc ->  bea     ba      cba */
 
-        // TODO
-        currentCube[0][0][0] = currentCube[0][0][0].substring(1,2) + currentCube[0][0][0].substring(0,1) + currentCube[0][0][0].substring(2);
-        //currentCube[0][0][1] = currentCube[0][0][1].substring() + currentCube[0][0][1].substring();
-        currentCube[0][0][2] = currentCube[0][0][2].substring(0,1) + currentCube[0][0][2].substring(2) + currentCube[0][0][2].substring(1,2);
+        currentCube[0][0][0] = currentCube[0][0][0].substring(2) + currentCube[0][0][0].substring(1,2) + currentCube[0][0][0].substring(0,1);
+        currentCube[0][0][1] = currentCube[0][0][1].substring(1) + currentCube[0][0][1].substring(0,1);
+        currentCube[0][0][2] = currentCube[0][0][2].substring(2) + currentCube[0][0][2].substring(1,2) + currentCube[0][0][2].substring(0,1);
 
-        //currentCube[0][1][0] = currentCube[0][1][0].substring() + currentCube[0][1][0].substring();
+        currentCube[0][1][0] = currentCube[0][1][0].substring(1) + currentCube[0][1][0].substring(0,1);
         //currentCube[0][1][1] = currentCube[0][1][1].substring() + currentCube[0][1][1].substring();
         currentCube[0][1][2] = currentCube[0][1][2].substring(1) + currentCube[0][1][2].substring(0,1);
 
-        currentCube[0][2][0] = currentCube[0][2][0].substring(1) + currentCube[0][2][0].substring(0,1);
+        currentCube[0][2][0] = currentCube[0][2][0].substring(2) + currentCube[0][2][0].substring(1,2) + currentCube[0][2][0].substring(0,1);
         currentCube[0][2][1] = currentCube[0][2][1].substring(1) + currentCube[0][2][1].substring(0,1);
-        currentCube[0][2][2] = currentCube[0][2][2].substring(2) + currentCube[0][2][2].substring(0,2);
+        currentCube[0][2][2] = currentCube[0][2][2].substring(2) + currentCube[0][2][2].substring(1,2) + currentCube[0][2][2].substring(0,1);
 
         currentCube[1][0][0] = currentCube[1][0][0].substring(1) + currentCube[1][0][0].substring(0,1);
         //currentCube[1][0][1] = currentCube[1][0][1].substring() + currentCube[1][0][1].substring();
-        //currentCube[1][0][2] = currentCube[1][0][2].substring() + currentCube[1][0][2].substring();
+        currentCube[1][0][2] = currentCube[1][0][2].substring(1) + currentCube[1][0][2].substring(0,1);
 
         //currentCube[1][1][0] = currentCube[1][1][0].substring() + currentCube[1][1][0].substring();
-        currentCube[1][1][1] = currentCube[1][1][1].substring(1,2) + currentCube[1][1][1].substring(5) + currentCube[1][1][1].substring(2,3) +
-                              currentCube[1][1][1].substring(0,1) + currentCube[1][1][1].substring(4,5) + currentCube[1][1][1].substring(3,4);
+        currentCube[1][1][1] = currentCube[1][1][1].substring(5) + currentCube[1][1][1].substring(3,4) + currentCube[1][1][1].substring(2,3) +
+                              currentCube[1][1][1].substring(1,2) + currentCube[1][1][1].substring(4,5) + currentCube[1][1][1].substring(0,1);
         //currentCube[1][1][2] = currentCube[1][1][2].substring() + currentCube[1][1][2].substring();
 
         currentCube[1][2][0] = currentCube[1][2][0].substring(1) + currentCube[1][2][0].substring(0,1);
         //currentCube[1][2][1] = currentCube[1][2][1].substring() + currentCube[1][2][1].substring();
-        //currentCube[1][2][2] = currentCube[1][2][2].substring() + currentCube[1][2][2].substring();
+        currentCube[1][2][2] = currentCube[1][2][2].substring(1) + currentCube[1][2][2].substring(0,1);
 
-        currentCube[2][0][0] = currentCube[2][0][0].substring(2) + currentCube[2][0][0].substring(0,2);
+        currentCube[2][0][0] = currentCube[2][0][0].substring(2) + currentCube[2][0][0].substring(1,2) + currentCube[2][0][0].substring(0,1);
         currentCube[2][0][1] = currentCube[2][0][1].substring(1) + currentCube[2][0][1].substring(0,1);
-        currentCube[2][0][2] = currentCube[2][0][2].substring(1) + currentCube[2][0][2].substring(0,1);
+        currentCube[2][0][2] = currentCube[2][0][2].substring(2) + currentCube[2][0][2].substring(1,2) + currentCube[2][0][2].substring(0,1);
 
-        //currentCube[2][1][0] = currentCube[2][1][0].substring() + currentCube[2][1][0].substring();
+        currentCube[2][1][0] = currentCube[2][1][0].substring(1) + currentCube[2][1][0].substring(0,1);
         //currentCube[2][1][1] = currentCube[2][1][1].substring() + currentCube[2][1][1].substring();
         currentCube[2][1][2] = currentCube[2][1][2].substring(1) + currentCube[2][1][2].substring(0,1);
 
-        currentCube[2][2][0] = currentCube[2][2][0].substring(0,1) + currentCube[2][2][0].substring(2) + currentCube[2][2][0].substring(1,2);
-        //currentCube[2][2][1] = currentCube[2][2][1].substring() + currentCube[2][2][1].substring();
-        currentCube[2][2][2] = currentCube[2][2][2].substring(1,2) + currentCube[2][2][2].substring(0,1) + currentCube[2][2][2].substring(2);
+        currentCube[2][2][0] = currentCube[2][2][0].substring(2) + currentCube[2][2][0].substring(1,2) + currentCube[2][2][0].substring(0,1);
+        currentCube[2][2][1] = currentCube[2][2][1].substring(1) + currentCube[2][2][1].substring(0,1);
+        currentCube[2][2][2] = currentCube[2][2][2].substring(2) + currentCube[2][2][2].substring(1,2) + currentCube[2][2][2].substring(0,1);
       }
     }
     else { // Horizontal
-      if(move == 1) { // Right
+      if ( move == 1 ) { // Right
         System.out.println("Right: verticalOrHorizontal: "+verticalOrHorizontal + " " +
                            "partsToMove: "+partsToMove + " " +
                            "move: "+move);
 
       }
-      else if(move == 2) { // Left
+      else if ( move == 2 ) { // Left
         System.out.println("Left: verticalOrHorizontal: "+verticalOrHorizontal + " " +
                            "partsToMove: "+partsToMove + " " +
                            "move: "+move);
 
       }
-      else if(move == 3) { // Inverse
+      else if ( move == 3 ) { // Inverse
         System.out.println("Inv Hor: verticalOrHorizontal: "+verticalOrHorizontal + " " +
                            "partsToMove: "+partsToMove + " " +
                            "move: "+move);
@@ -302,9 +280,9 @@ public class Rubik{
   public static void main(String[] argv){
 
     // Copying Initial Position to Current Cube
-    for(int i=0;i<3;i++)
-      for(int j=0;j<3;j++)
-        for(int k=0;k<3;k++)
+    for ( int i=0;i<3;i++ )
+      for ( int j=0;j<3;j++ )
+        for ( int k=0;k<3;k++ )
           currentCube[i][j][k] = solvedCube[i][j][k];
 
     System.out.println("\n\nAfter Inverse Move : " + makeMove(43));
@@ -322,9 +300,9 @@ public class Rubik{
         be      b       cb
         bea     ba      cba
     */
-    for(int i=0;i<3;i++){
-      for(int j=0;j<3;j++){
-        for(int k=0;k<3;k++)
+    for ( int i=0;i<3;i++ ){
+      for ( int j=0;j<3;j++ ){
+        for ( int k=0;k<3;k++ )
           System.out.print(currentCube[i][j][k] + "\t");
         System.out.println("");
       }
