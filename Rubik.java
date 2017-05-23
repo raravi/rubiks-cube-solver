@@ -5,13 +5,22 @@ import java.time.Instant;
 
 public class Rubik{
 
-  private static int[] allPossibleMoves         = new int[]{11,12,13,21,22,23,31,32,33,41,42,43,51,52,53,61,62,63,71,72,73,81,82,83};
-  private static int[] allPossibleMovesReversal = new int[]{12,11,13,22,21,23,32,31,33,42,41,43,52,51,53,62,61,63,72,71,73,82,81,83};
+  private static int[] allPossibleMoves         = new int[]{11,12,13,21,22,23,31,32,33,41,42,43,51,52,53,61,62,63,71,72,73,81,82,83,
+                                                            91,92,93,101,102,103,111,112,113,121,122,123};
+  private static int[] allPossibleMovesReversal = new int[]{12,11,13,22,21,23,32,31,33,42,41,43,52,51,53,62,61,63,72,71,73,82,81,83,
+                                                            92,91,93,102,101,103,112,111,113,122,121,123};
 
-  private static ArrayList<Integer> movesMade = new ArrayList<Integer>();
+  private static ArrayList<Integer> movesMade         = new ArrayList<Integer>();
+  private static ArrayList<Integer> partialMovesMade  = new ArrayList<Integer>();
 
-  private static int level = 0;
-  private static int numberofMovesToMake = 10;
+  private static int level                      = 0;
+  private static int numberofMovesToMake        = 5;
+
+  private static int partialLevel               = 0;
+  private static String intermediateLevel       = "";
+
+  private static int makeMoveCount              = 0;
+  private static boolean intermediatePosition1 = false, intermediatePosition2 = false;
 
   private static String[][][] solvedCube = new String[][][]{{{"aeb",   "ab",    "abc"},  //1 - 0 0
                                                              {"eb",    "b",     "bc"},   //2 - 0 1
@@ -25,14 +34,169 @@ public class Rubik{
                                                              {"de",    "d",     "cd"},   //6 - 2 1
                                                              {"def",   "df",    "cdf"}}};//5 - 2 2
 
-  private static String[][][] currentCube = new String[3][3][3];
+  private static String[][][] currentCube = new String[][][]{{{"aeb",   "ab",    "abc"},
+                                                              {"eb",    "b",     "bc"},
+                                                              {"ebf",   "bf",    "bcf"}},
+                                                             {{"ae",    "a",     "ac"},
+                                                              {"e",     "abcdef","c"},
+                                                              {"ef",    "f",     "cf"}},
+                                                             {{"ade",   "ad",    "acd"},
+                                                              {"de",    "d",     "cd"},
+                                                              {"def",   "df",    "cdf"}}};
+
+  private static String[] cubePartiallySolved = new String[]{"001", "102", "201", "100",  // Top Center Pieces
+                                                             "000", "002", "202", "200",  // Top Corner Pieces
+                                                             "010", "012", "212", "210",  // Middle Center Pieces
+                                                             "021", "122", "221", "120",  // Bottom Center Pieces
+                                                             "020", "022", "222", "220"}; // Bottom Corner Pieces
+
+  private static String[][] intermediateLevelForTopCornerPieces = new String[][]{{"022", "020", "022", "020"},
+                                                                                 {"220", "222", "220", "222"}};
+
+  private static String[][] intermediateLevelForMiddleCenterPieces = new String[][]{{"021", "122", "221", "120"},
+                                                                                    {"120", "021", "122", "221"}};
+
+  private static int[] numberofPartialMovesToMake = new int[]{ 4,4,4,4,
+                                                               4,4,5,5,
+                                                               5,5,5,5,
+                                                               4,5,5,2,
+                                                               5,5,5,5};
+
+  private static int maximumDepthOfMoves        = 0;
+
+  private static boolean optimalSolution                             = false;
+  private static ArrayList<Integer> optimalPartialMovesMade          = new ArrayList<Integer>();
+  private static ArrayList<Integer> movesToRotate                    = new ArrayList<Integer>();
+  private static String[] solvedBottomCenterPieces                   = new String[]{"b","c","d","e"};
+  private static String[] currentBottomCenterPieces                  = new String[4];
+  private static int[] allPossibleMovesForBottomCenterPieces         = new int[]{1,2,3,11,12};//,21,22,31,32,41,42};
+  private static int[] allPossibleMovesReversalForBottomCenterPieces = new int[]{2,1,3,12,11};//,22,21,32,31,42,41};
+  private static String[][] allBottomCenterPieces          = new String[][]{{"b","c","d","e"},
+                                                                            {"b","c","e","d"},
+                                                                            {"b","d","c","e"},
+                                                                            {"b","d","e","c"},
+                                                                            {"b","e","c","d"},
+                                                                            {"b","e","d","c"},
+
+                                                                            {"c","b","d","e"},
+                                                                            {"c","b","e","d"},
+                                                                            {"c","d","b","e"},
+                                                                            {"c","d","e","b"},
+                                                                            {"c","e","b","d"},
+                                                                            {"c","e","d","b"},
+
+                                                                            {"d","b","c","e"},
+                                                                            {"d","b","e","c"},
+                                                                            {"d","c","b","e"},
+                                                                            {"d","c","e","b"},
+                                                                            {"d","e","b","c"},
+                                                                            {"d","e","c","b"},
+
+                                                                            {"e","b","c","d"},
+                                                                            {"e","b","d","c"},
+                                                                            {"e","c","b","d"},
+                                                                            {"e","c","d","b"},
+                                                                            {"e","d","b","c"},
+                                                                            {"e","d","c","b"}};
 
   private static boolean isCubeSolved() {
-    for ( int i=0;i<3;i++ )
-      for ( int j=0;j<3;j++ )
-        for ( int k=0;k<3;k++ )
+
+    if ( currentCube[1][1][1].equals(solvedCube[1][1][1]) == false )
+      return false;
+
+    for ( int i=0 ; i<3 ; i++ )
+      for ( int j=0 ; j<3 ; j++ )
+        for ( int k=0 ; k<3 ; k++ )
           if (currentCube[i][j][k].equals(solvedCube[i][j][k]) == false)
             return false;
+
+    return true;
+  }
+
+  private static boolean isCubePartiallySolved(int partialLevel) {
+
+    int a,b,c;
+
+    if ( currentCube[1][1][1].equals(solvedCube[1][1][1]) == false )
+      return false;
+
+    for ( int j=0 ; j<partialLevel ; j++ ) {
+      a = Integer.parseInt(cubePartiallySolved[j].substring(0,1));
+      b = Integer.parseInt(cubePartiallySolved[j].substring(1,2));
+      c = Integer.parseInt(cubePartiallySolved[j].substring(2));
+
+      if (currentCube[a][b][c].equals(solvedCube[a][b][c]) == false)
+        return false;
+    }
+
+    if(intermediateLevel == "TopCornerPieces") {
+
+      int d,e,f,g,h,i,intermediateIndex;
+
+      intermediatePosition1 = false;
+      intermediatePosition2 = false;
+
+      a = Integer.parseInt(cubePartiallySolved[partialLevel].substring(0,1));
+      b = Integer.parseInt(cubePartiallySolved[partialLevel].substring(1,2));
+      c = Integer.parseInt(cubePartiallySolved[partialLevel].substring(2));
+
+      intermediateIndex = partialLevel % 4;
+      d = Integer.parseInt(intermediateLevelForTopCornerPieces[0][intermediateIndex].substring(0,1));
+      e = Integer.parseInt(intermediateLevelForTopCornerPieces[0][intermediateIndex].substring(1,2));
+      f = Integer.parseInt(intermediateLevelForTopCornerPieces[0][intermediateIndex].substring(2));
+
+      g = Integer.parseInt(intermediateLevelForTopCornerPieces[1][intermediateIndex].substring(0,1));
+      h = Integer.parseInt(intermediateLevelForTopCornerPieces[1][intermediateIndex].substring(1,2));
+      i = Integer.parseInt(intermediateLevelForTopCornerPieces[1][intermediateIndex].substring(2));
+
+      if (solvedCube[a][b][c].contains(currentCube[d][e][f].substring(0,1)) == true &&
+          solvedCube[a][b][c].contains(currentCube[d][e][f].substring(1,2)) == true &&
+          solvedCube[a][b][c].contains(currentCube[d][e][f].substring(2)) == true)
+          intermediatePosition1 = true;
+      if (solvedCube[a][b][c].contains(currentCube[g][h][i].substring(0,1)) == true &&
+          solvedCube[a][b][c].contains(currentCube[g][h][i].substring(1,2)) == true &&
+          solvedCube[a][b][c].contains(currentCube[g][h][i].substring(2)) == true)
+          intermediatePosition2 = true;
+
+      if (intermediatePosition1 == false && intermediatePosition2 == false)
+        return false;
+    }
+    else if(intermediateLevel == "MiddleCenterPieces") {
+      int d,e,f,g,h,i,intermediateIndex;
+
+      intermediatePosition1 = false;
+      intermediatePosition2 = false;
+
+      a = Integer.parseInt(cubePartiallySolved[partialLevel].substring(0,1));
+      b = Integer.parseInt(cubePartiallySolved[partialLevel].substring(1,2));
+      c = Integer.parseInt(cubePartiallySolved[partialLevel].substring(2));
+
+      intermediateIndex = partialLevel % 4;
+      d = Integer.parseInt(intermediateLevelForMiddleCenterPieces[0][intermediateIndex].substring(0,1));
+      e = Integer.parseInt(intermediateLevelForMiddleCenterPieces[0][intermediateIndex].substring(1,2));
+      f = Integer.parseInt(intermediateLevelForMiddleCenterPieces[0][intermediateIndex].substring(2));
+
+      g = Integer.parseInt(intermediateLevelForMiddleCenterPieces[1][intermediateIndex].substring(0,1));
+      h = Integer.parseInt(intermediateLevelForMiddleCenterPieces[1][intermediateIndex].substring(1,2));
+      i = Integer.parseInt(intermediateLevelForMiddleCenterPieces[1][intermediateIndex].substring(2));
+
+      if (solvedCube[a][b][c].equals((new StringBuilder(currentCube[d][e][f])).reverse().toString()) == true) {
+          intermediatePosition1 = true;
+      }
+      if (solvedCube[a][b][c].equals(currentCube[g][h][i]) == true) {
+          intermediatePosition2 = true;
+      }
+      if (intermediatePosition1 == false && intermediatePosition2 == false)
+        return false;
+    }
+    else {
+      a = Integer.parseInt(cubePartiallySolved[partialLevel].substring(0,1));
+      b = Integer.parseInt(cubePartiallySolved[partialLevel].substring(1,2));
+      c = Integer.parseInt(cubePartiallySolved[partialLevel].substring(2));
+
+      if (currentCube[a][b][c].equals(solvedCube[a][b][c]) == false)
+        return false;
+    }
     return true;
   }
 
@@ -41,28 +205,33 @@ public class Rubik{
           a: Single Part
                 vertical:   1 2 3 - u(up) d(down) i(invert)
                 horizontal: 5 6 7 - r(right) l(left) i(invert)
+                rotate:     9 10 11 - counterclock clock invert
           b: Entire Cube
-                vertical:   4 - u d i
-                horizontal: 8 - r l i
+                vertical:   4 -  u d i
+                horizontal: 8 -  r l i
+                rotate:     12 - c c i
     */
 
-    boolean verticalOrHorizontal=false; // false -> Vertical ; true -> Horizotal
-    int partsToMove=0; // 0 -> whole cobe ; 1,2,3 -> one part (Top to Down, Left to Right order)
+    String typeOfMove = "vertical"; // "vertical" or "horizotal" or "rotate"
+    int partsToMove=0; // 0 -> whole cube ; 1,2,3 -> one part (Top to Down, Left to Right order)
     int move; // Actual Move to make -> 1,2 or 3 for (u,d or i) or (r,l or i)
     int oddMove[]  = new int[]{0,0,2,2,0,0};
     int evenMove[] = new int[]{0,1,2,1,0,1};
     String tempOddRow[] = new String[3];
     String tempEvenRow[] = new String[3];
 
-    //System.out.println(moveToMake + " " + moveToMake / 10 + " " + moveToMake % 10);
+    makeMoveCount++;
 
-    if ( moveToMake / 10 > 4 ) // First Part of Move
-      verticalOrHorizontal = true;
+    if ( moveToMake / 10 > 4 ) {// First Part of Move
+      typeOfMove = "horizontal";
+      if ( moveToMake / 10 > 8 && moveToMake / 10 < 13)
+        typeOfMove = "rotate";
+    }
     partsToMove = ( moveToMake / 10 ) % 4; // Cube or Row
     move = moveToMake % 10;// Second Part of Move
 
     // Transpose the cube according to the move
-    if ( verticalOrHorizontal == false ) { // Vertical
+    if ( typeOfMove == "vertical" ) { // Vertical
       if ( move == 1 ) { // Up
         if ( partsToMove == 0 ) { // Move Whole Cube
             for ( int j = 0 ; j < 3 ; j++ ) {
@@ -124,7 +293,8 @@ public class Rubik{
           //currentCube[0][1][1] = currentCube[0][1][1].substring() + currentCube[0][1][1].substring();
           currentCube[0][2][1] = currentCube[0][2][1].substring(1) + currentCube[0][2][1].substring(0,1);
           //currentCube[1][0][1] = currentCube[1][0][1].substring() + currentCube[1][0][1].substring();
-
+          currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
+                                 currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
           //currentCube[1][2][1] = currentCube[1][2][1].substring() + currentCube[1][2][1].substring();
           currentCube[2][0][1] = currentCube[2][0][1].substring(1) + currentCube[2][0][1].substring(0,1);
           //currentCube[2][1][1] = currentCube[2][1][1].substring() + currentCube[2][1][1].substring();
@@ -141,8 +311,6 @@ public class Rubik{
           currentCube[2][1][2] = currentCube[2][1][2].substring(1) + currentCube[2][1][2].substring(0,1);
           currentCube[2][2][2] = currentCube[2][2][2].substring(1,2) + currentCube[2][2][2].substring(0,1) + currentCube[2][2][2].substring(2);
         }
-        currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
-                               currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
       }
       else if ( move == 2 ) { // Down
         if ( partsToMove == 0 ) { // Move Whole Cube
@@ -205,7 +373,8 @@ public class Rubik{
           //currentCube[0][1][1] = currentCube[0][1][1].substring() + currentCube[0][1][1].substring();
           //currentCube[0][2][1] = currentCube[0][2][1].substring() + currentCube[0][2][1].substring();
           //currentCube[1][0][1] = currentCube[1][0][1].substring() + currentCube[1][0][1].substring();
-
+          currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
+                                 currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
           //currentCube[1][2][1] = currentCube[1][2][1].substring() + currentCube[1][2][1].substring();
           //currentCube[2][0][1] = currentCube[2][0][1].substring() + currentCube[2][0][1].substring();
           //currentCube[2][1][1] = currentCube[2][1][1].substring() + currentCube[2][1][1].substring();
@@ -222,8 +391,6 @@ public class Rubik{
           //currentCube[2][1][2] = currentCube[2][1][2].substring() + currentCube[2][1][2].substring();
           currentCube[2][2][2] = currentCube[2][2][2].substring(1) + currentCube[2][2][2].substring(0,1);
         }
-        currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
-                               currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
       }
       else if ( move == 3 ) { // Inverse
         if ( partsToMove == 0 ) { // Move Whole Cube
@@ -287,7 +454,8 @@ public class Rubik{
           //currentCube[0][1][1] = currentCube[0][1][1].substring() + currentCube[0][1][1].substring();
           currentCube[0][2][1] = currentCube[0][2][1].substring(1) + currentCube[0][2][1].substring(0,1);
           //currentCube[1][0][1] = currentCube[1][0][1].substring() + currentCube[1][0][1].substring();
-
+          currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
+                                 currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
           //currentCube[1][2][1] = currentCube[1][2][1].substring() + currentCube[1][2][1].substring();
           currentCube[2][0][1] = currentCube[2][0][1].substring(1) + currentCube[2][0][1].substring(0,1);
           //currentCube[2][1][1] = currentCube[2][1][1].substring() + currentCube[2][1][1].substring();
@@ -304,11 +472,11 @@ public class Rubik{
           currentCube[2][1][2] = currentCube[2][1][2].substring(1) + currentCube[2][1][2].substring(0,1);
           currentCube[2][2][2] = currentCube[2][2][2].substring(2) + currentCube[2][2][2].substring(1,2) + currentCube[2][2][2].substring(0,1);
         }
-        currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
-                               currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
       }
+      else
+        return false;
     }
-    else { // Horizontal
+    else if ( typeOfMove == "horizontal" ) { // Horizontal
       if ( move == 1 ) { // Right
         // Position of Current Cube - After Right Move (Clockwise)
         /*
@@ -462,7 +630,23 @@ public class Rubik{
         currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
                                currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
       }
+      else
+        return false;
     }
+    else if ( typeOfMove == "rotate" ) {
+      int newMoveToMake;
+
+      if ( partsToMove == 0 )
+        newMoveToMake = 40 + move;
+      else
+        newMoveToMake = (((moveToMake / 10) % 4) * 10) + move;
+
+      makeMove(82);
+      makeMove(newMoveToMake);
+      makeMove(81);
+    }
+    else
+      return false;
 
     return true;
   }
@@ -470,17 +654,17 @@ public class Rubik{
   private static void scrambleCube(int numberOfMovesForScrambling) {
     int move;
 
-    System.out.print("Srambled Moves : ");
+    //System.out.print("Scrambled Moves : ");
     for ( int i = 0 ; i < numberOfMovesForScrambling ; i++ ) {
-      move = (ThreadLocalRandom.current().nextInt(1, 9) * 10) + (ThreadLocalRandom.current().nextInt(1, 4));
+      move = (ThreadLocalRandom.current().nextInt(1, 13) * 10) + (ThreadLocalRandom.current().nextInt(1, 4));
       makeMove(move);
-      System.out.print(move + " ");
+      //System.out.print(move + " ");
     }
-    System.out.println("");
+    //System.out.println("");
   }
 
   private static boolean rubikSolver() {
-    // TODO
+    // Depth First Search(DFS) with Depth limited
     level++;
     int lastMove = 0;
     int secondLastMove = 0;
@@ -489,96 +673,561 @@ public class Rubik{
     if(level > 2)
       secondLastMove = movesMade.get(movesMade.size()-2);
     for ( int i = 0 ; i < allPossibleMoves.length ; i++ ) {
+      // Trim the Moves
       if ( lastMove / 10 == allPossibleMoves[i] / 10 )
         continue;
-      if ( (secondLastMove % 10 == lastMove % 10) &&
-           (lastMove % 10 == allPossibleMoves[i] % 10) &&
-           (allPossibleMoves[i] % 10 == secondLastMove % 10) )
-        if ( (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 6) ||
-             (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 18))
-          continue;
+      // if ( (secondLastMove % 10 == lastMove % 10) &&
+      //      (lastMove % 10 == allPossibleMoves[i] % 10) &&
+      //      (allPossibleMoves[i] % 10 == secondLastMove % 10) )
+      //   if ( (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 6) ||
+      //        (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 18))
+      //     continue;
+
+      // Make the move!
       makeMove(allPossibleMoves[i]);
       movesMade.add(allPossibleMoves[i]);
 
+      // Terminating Condition
       if ( isCubeSolved() == true )
         return true;
 
+      // Recursive Call
       if ( level < numberofMovesToMake)
         if( rubikSolver() == true)
           return true;
-      makeMove(allPossibleMovesReversal[i]); // Unmake the previous move!
+
+      // Unmake the previous move!
+      makeMove(allPossibleMovesReversal[i]);
       movesMade.remove(movesMade.size()-1);
     }
     level--;
-    return false; // ERROR: This shuldn't be executed!!!
+    return false;
+  }
+
+  private static boolean rubikPartialSolver() {
+    // Depth First Search(DFS) with Depth limited
+    level++;
+    int lastMove = 0;
+    int secondLastMove = 0;
+    if(level > 1)
+      lastMove = partialMovesMade.get(partialMovesMade.size()-1);
+    if(level > 2)
+      secondLastMove = partialMovesMade.get(partialMovesMade.size()-2);
+    for ( int i = 0 ; i < allPossibleMoves.length ; i++ ) {
+      if ( lastMove / 10 == allPossibleMoves[i] / 10 )
+        continue;
+      // if ( (secondLastMove % 10 == lastMove % 10) &&
+      //      (lastMove % 10 == allPossibleMoves[i] % 10) &&
+      //      (allPossibleMoves[i] % 10 == secondLastMove % 10) )
+      //   if ( (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 6) ||
+      //        (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 18))
+      //     continue;
+      makeMove(allPossibleMoves[i]);
+      partialMovesMade.add(allPossibleMoves[i]);
+
+      if ( isCubePartiallySolved(partialLevel) == true ) {
+        optimalSolution = true;
+        optimalPartialMovesMade = new ArrayList<Integer>(partialMovesMade);
+
+        makeMove(allPossibleMovesReversal[i]);
+        partialMovesMade.remove(partialMovesMade.size()-1);
+        level--;
+        maximumDepthOfMoves--;
+        return true;
+      }
+
+      if ( level < maximumDepthOfMoves)
+        rubikPartialSolver();
+
+      makeMove(allPossibleMovesReversal[i]); // Unmake the previous move!
+      partialMovesMade.remove(partialMovesMade.size()-1);
+    }
+    level--;
+    if (optimalSolution == true)
+      return true;
+    return false;
+  }
+
+  private static void scrambleCubeForBottomCenterPieces(int numberOfMovesForScrambling) {
+    int move;
+
+    //System.out.print("Scrambled Moves : ");
+    for ( int i = 0 ; i < numberOfMovesForScrambling ; i++ ) {
+      int part1 = ThreadLocalRandom.current().nextInt(1, 3) * 10;
+      if (part1 == 10)
+        move = ThreadLocalRandom.current().nextInt(1, 4);
+      else
+        move = 10 + (ThreadLocalRandom.current().nextInt(1, 3));
+      makeMoveForBottomCenterPieces(move);
+      //System.out.print(move + " ");
+    }
+    //System.out.println("");
+  }
+
+  private static boolean makeMoveForBottomCenterPieces(int moveToMake) {
+    int typeOfMove = moveToMake / 10;
+    int move = moveToMake % 10;
+
+    if (typeOfMove == 0) { // Rotate the Cube
+      if (move == 1) { // Counterclockwise
+        String temp = currentBottomCenterPieces[0];
+        for (int i=0 ; i<3 ; i++)
+          currentBottomCenterPieces[i] = currentBottomCenterPieces[i+1];
+        currentBottomCenterPieces[3] = temp;
+      }
+      else if (move == 2) { // Clockwise
+        String temp = currentBottomCenterPieces[3];
+        for (int i=3 ; i>0 ; i--)
+          currentBottomCenterPieces[i] = currentBottomCenterPieces[i-1];
+        currentBottomCenterPieces[0] = temp;
+      }
+      else if (move == 3) { // Rotate
+        String temp1 = currentBottomCenterPieces[0];
+        String temp2 = currentBottomCenterPieces[1];
+
+        currentBottomCenterPieces[0] = currentBottomCenterPieces[2];
+        currentBottomCenterPieces[1] = currentBottomCenterPieces[3];
+
+        currentBottomCenterPieces[2] = temp1;
+        currentBottomCenterPieces[3] = temp2;
+      }
+      else
+        return false;
+    }
+    else { // Rotate Partial Cube
+      if (move == 1) { // Counterclockwise
+        String temp = currentBottomCenterPieces[1];
+        for (int i=1 ; i<3 ; i++)
+          currentBottomCenterPieces[i] = currentBottomCenterPieces[i+1];
+        currentBottomCenterPieces[3] = temp;
+      }
+      else if (move == 2) { // Clockwise
+        String temp = currentBottomCenterPieces[3];
+        for (int i=3 ; i>1 ; i--)
+          currentBottomCenterPieces[i] = currentBottomCenterPieces[i-1];
+        currentBottomCenterPieces[1] = temp;
+      }
+      else
+        return false;
+    }
+    return true;
+  }
+
+  private static boolean isCubePartiallySolvedForBottomCenterPieces() {
+    for ( int i=0 ; i<4 ; i++ )
+      if (currentBottomCenterPieces[i].equals(solvedBottomCenterPieces[i]) == false)
+        return false;
+    return true;
+  }
+
+  private static boolean rubikPartialSolverForBottomCenterPieces() {
+    level++;
+    int lastMove = 30;
+    int secondLastMove = 30;
+    if(level > 1)
+      lastMove = partialMovesMade.get(partialMovesMade.size()-1);
+    if(level > 2)
+      secondLastMove = partialMovesMade.get(partialMovesMade.size()-2);
+
+    for (int i=0; i<allPossibleMovesForBottomCenterPieces.length ; i++) {
+      if ( lastMove / 10 == allPossibleMovesForBottomCenterPieces[i] / 10 )
+        continue;
+
+      // Make Move
+      makeMoveForBottomCenterPieces(allPossibleMovesForBottomCenterPieces[i]);
+      partialMovesMade.add(allPossibleMovesForBottomCenterPieces[i]);
+
+      // Check if solved
+      if (isCubePartiallySolvedForBottomCenterPieces() == true){
+        optimalSolution = true;
+        optimalPartialMovesMade = new ArrayList<Integer>(partialMovesMade);
+
+        makeMoveForBottomCenterPieces(allPossibleMovesReversalForBottomCenterPieces[i]);
+        partialMovesMade.remove(partialMovesMade.size()-1);
+        level--;
+        maximumDepthOfMoves--;
+        return true;
+      }
+
+      if (level < maximumDepthOfMoves)
+        rubikPartialSolverForBottomCenterPieces();
+        //if (rubikPartialSolverForBottomCenterPieces() == true)
+        //  return true;
+
+      // Unmake Move
+      makeMoveForBottomCenterPieces(allPossibleMovesReversalForBottomCenterPieces[i]);
+      partialMovesMade.remove(partialMovesMade.size()-1);
+    }
+    level--;
+    if (optimalSolution == true)
+      return true;
+    return false;
+  }
+
+  private static boolean rubikSolverUsingSpeedCubing() {
+
+    boolean solved = false;
+    int currentLevel = 0;
+
+    //solveTop();
+
+    // A. Solve Top Center Pieces
+    do {
+      solved = false;
+      partialLevel = currentLevel;
+      intermediateLevel = "";
+      if (isCubePartiallySolved(partialLevel) == true) {
+        solved = true;
+      }
+      else {
+        level = 0;
+        partialMovesMade.clear();
+        optimalSolution = false;
+        optimalPartialMovesMade.clear();
+        maximumDepthOfMoves = numberofPartialMovesToMake[partialLevel];
+        solved = rubikPartialSolver();
+        if(solved)
+        for(int currentMove:optimalPartialMovesMade)
+          makeMove(currentMove);
+      }
+
+      if(solved == false)
+        return solved;
+      currentLevel++;
+    }while(currentLevel < 4);
+
+    System.out.print("Level " + (currentLevel-1) + " Solved!");
+
+    // B. Solve Top Corner Pieces
+    do{
+      solved = false;
+      partialLevel = currentLevel;
+      intermediateLevel = "";
+      if (isCubePartiallySolved(partialLevel) == true){
+        solved = true;
+      }
+      else {
+        intermediateLevel = "TopCornerPieces";
+        if (isCubePartiallySolved(partialLevel) == true){
+          solved = true;
+        }
+        else {
+          level = 0;
+          partialMovesMade.clear();
+          optimalSolution = false;
+          optimalPartialMovesMade.clear();
+          maximumDepthOfMoves = numberofPartialMovesToMake[partialLevel];
+          solved = rubikPartialSolver();
+          if(solved)
+          for(int currentMove:optimalPartialMovesMade)
+            makeMove(currentMove);
+        }
+        if(solved) {
+          level = 0;
+          partialMovesMade.clear();
+          intermediateLevel = "";
+          optimalSolution = false;
+          optimalPartialMovesMade.clear();
+          maximumDepthOfMoves = numberofPartialMovesToMake[partialLevel];
+          solved = rubikPartialSolver();
+          if(solved)
+          for(int currentMove:optimalPartialMovesMade)
+            makeMove(currentMove);
+        }
+      }
+
+      if(solved == false)
+        return solved;
+      currentLevel++;
+    }while(currentLevel < 8);
+
+    System.out.print("Level " + (currentLevel-1) + " Solved!");
+
+    //solveMiddle();
+    do{
+      solved = false;
+      partialLevel = currentLevel;
+      intermediateLevel = "";
+      if (isCubePartiallySolved(partialLevel) == true){
+        solved = true;
+      }
+      else {
+        int a = Integer.parseInt(cubePartiallySolved[partialLevel].substring(0,1));
+        int b = Integer.parseInt(cubePartiallySolved[partialLevel].substring(1,2));
+        int c = Integer.parseInt(cubePartiallySolved[partialLevel].substring(2));
+        int d = -1;
+        int e = -1;
+        int f = -1;
+        int noOfRotations = 0;
+        boolean foundMiddleCenterPieceInCenter = false;
+        for ( int i=partialLevel ; i<12 ; i++ ) {
+            d = Integer.parseInt(cubePartiallySolved[i].substring(0,1));
+            e = Integer.parseInt(cubePartiallySolved[i].substring(1,2));
+            f = Integer.parseInt(cubePartiallySolved[i].substring(2));
+            if (solvedCube[a][b][c].contains(currentCube[d][e][f].substring(0,1)) == true &&
+                solvedCube[a][b][c].contains(currentCube[d][e][f].substring(1)) == true) {
+                  foundMiddleCenterPieceInCenter = true;
+                  noOfRotations = i - 9; // 9 is the Index of Middle Center Right Piece of Front Face!!!
+                  break;
+                }
+        }
+        if (foundMiddleCenterPieceInCenter == true) {
+          switch(noOfRotations) {
+            case -1: makeMove(81);
+                     makeMove(32); makeMove(71); makeMove(31); makeMove(71); makeMove(92); makeMove(72); makeMove(91);
+                     makeMove(82);
+                     break;
+            case 0 : makeMove(32); makeMove(71); makeMove(31); makeMove(71); makeMove(92); makeMove(72); makeMove(91);
+                     break;
+            case 1 : makeMove(82);
+                     makeMove(32); makeMove(71); makeMove(31); makeMove(71); makeMove(92); makeMove(72); makeMove(91);
+                     makeMove(81);
+                     break;
+            case 2 : makeMove(83);
+                     makeMove(32); makeMove(71); makeMove(31); makeMove(71); makeMove(92); makeMove(72); makeMove(91);
+                     makeMove(83);
+                     break;
+            default: System.out.println("Invalid case");
+                     break;
+          }
+        }
+
+        intermediateLevel = "MiddleCenterPieces";
+        if (isCubePartiallySolved(partialLevel) == true){
+          solved = true;
+        }
+        else {
+          level = 0;
+          partialMovesMade.clear();
+          optimalSolution = false;
+          optimalPartialMovesMade.clear();
+          maximumDepthOfMoves = numberofPartialMovesToMake[partialLevel];
+          solved = rubikPartialSolver();
+          if(solved)
+          for(int currentMove:optimalPartialMovesMade)
+            makeMove(currentMove);
+        }
+
+        if(solved) {
+          noOfRotations = partialLevel - 9;
+          switch(noOfRotations) {
+            case -1: makeMove(81);
+                     if (intermediatePosition1 == true) {
+                       makeMove(71); makeMove(92); makeMove(72); makeMove(91); makeMove(72); makeMove(32); makeMove(71); makeMove(31);
+                     }
+                     else if (intermediatePosition2 == true) {
+                       makeMove(72); makeMove(32); makeMove(71); makeMove(31); makeMove(71); makeMove(92); makeMove(72); makeMove(91);
+                     }
+                     makeMove(82);
+                     break;
+            case 0 : if (intermediatePosition1 == true) {
+                       makeMove(71); makeMove(92); makeMove(72); makeMove(91); makeMove(72); makeMove(32); makeMove(71); makeMove(31);
+                     }
+                     else if (intermediatePosition2 == true) {
+                       makeMove(72); makeMove(32); makeMove(71); makeMove(31); makeMove(71); makeMove(92); makeMove(72); makeMove(91);
+                     }
+                     break;
+            case 1 : makeMove(82);
+                     if (intermediatePosition1 == true) {
+                       makeMove(71); makeMove(92); makeMove(72); makeMove(91); makeMove(72); makeMove(32); makeMove(71); makeMove(31);
+                     }
+                     else if (intermediatePosition2 == true) {
+                       makeMove(72); makeMove(32); makeMove(71); makeMove(31); makeMove(71); makeMove(92); makeMove(72); makeMove(91);
+                     }
+                     makeMove(81);
+                     break;
+            case 2 : makeMove(83);
+                     if (intermediatePosition1 == true) {
+                       makeMove(71); makeMove(92); makeMove(72); makeMove(91); makeMove(72); makeMove(32); makeMove(71); makeMove(31);
+                     }
+                     else if (intermediatePosition2 == true) {
+                       makeMove(72); makeMove(32); makeMove(71); makeMove(31); makeMove(71); makeMove(92); makeMove(72); makeMove(91);
+                     }
+                     makeMove(83);
+                     break;
+            default: System.out.println("Invalid case");
+                     break;
+          }
+        }
+      }
+
+      if(solved == false)
+        return solved;
+      currentLevel++;
+    }while(currentLevel < 12);
+
+    System.out.print("Level " + (currentLevel-1) + " Solved!");
+
+    //solveBottom();
+
+    // A. Solve Bottom Center Pieces
+    {
+      solved = false;
+      partialLevel = currentLevel;
+      intermediateLevel = "";
+      // Get the Position of Bottom Center Pieces
+      for (int i=12 ; i<16 ; i++) {
+        int a = Integer.parseInt(cubePartiallySolved[i].substring(0,1));
+        int b = Integer.parseInt(cubePartiallySolved[i].substring(1,2));
+        int c = Integer.parseInt(cubePartiallySolved[i].substring(2));
+
+        if (solvedCube[1][2][1].equals(currentCube[a][b][c].substring(0,1)) == true)
+          currentBottomCenterPieces[i-12] = currentCube[a][b][c].substring(1);
+        else
+          currentBottomCenterPieces[i-12] = currentCube[a][b][c].substring(0,1);
+      }
+
+      if (isCubePartiallySolvedForBottomCenterPieces() == true) {
+        solved = true;
+      }
+      else {
+        // Solve the position thru Recursion
+        level = 0;
+        partialMovesMade.clear();
+        optimalSolution = false;
+        optimalPartialMovesMade.clear();
+        maximumDepthOfMoves = numberofPartialMovesToMake[12];
+        solved = rubikPartialSolverForBottomCenterPieces();
+
+        if(solved) {
+
+          // Make moves for it
+          for ( int currentMove:optimalPartialMovesMade ) {
+            switch(currentMove) {
+              case 1 : makeMove(72);
+                       break;
+              case 2 : makeMove(71);
+                       break;
+              case 3 : makeMove(73);
+                       break;
+              case 11 : makeMove(81);
+                        // 71 92 72 91 72 - 32 73 31 71 92 - 72 91 72
+                        makeMove(71); makeMove(92); makeMove(72); makeMove(91); makeMove(72);
+                        makeMove(32); makeMove(73); makeMove(31); makeMove(71); makeMove(92);
+                        makeMove(72); makeMove(91); makeMove(72);
+                        makeMove(82);
+                        break;
+              case 12 : // 72 32 71 31 71 - 92 73 91 72 32 - 71 31 71
+                        makeMove(72); makeMove(32); makeMove(71); makeMove(31); makeMove(71);
+                        makeMove(92); makeMove(73); makeMove(91); makeMove(72); makeMove(32);
+                        makeMove(71); makeMove(31); makeMove(71);
+                        break;
+              default: System.out.println("Invalid case");
+                       break;
+            }
+          }
+        }
+      }
+
+      if(solved == false)
+        return solved;
+
+      // Correct the orientation if required!
+      boolean firstTime = true;
+      movesToRotate.clear();
+
+      for (int i=12 ; i<16 ; i++) {
+        int a = Integer.parseInt(cubePartiallySolved[i].substring(0,1));
+        int b = Integer.parseInt(cubePartiallySolved[i].substring(1,2));
+        int c = Integer.parseInt(cubePartiallySolved[i].substring(2));
+
+        if (solvedCube[a][b][c].equals(currentCube[a][b][c]) == false) {
+          if(firstTime == true) {
+            movesToRotate.add(i-12);
+            firstTime = false;
+          }
+          else {
+            movesToRotate.add(i-12);
+          }
+        }
+      }
+
+      if (movesToRotate.size() > 0) {
+        firstTime = true;
+        int previousMove = 0;
+
+        for (int currentMove:movesToRotate) {
+          if(firstTime == true) {
+            // rotate cube
+            switch(currentMove) {
+              case 0 : break;
+              case 1 : makeMove(82);
+                       break;
+              case 2 : makeMove(83);
+                       break;
+              case 3 : makeMove(81);
+                       break;
+              default: System.out.println("Invalid case");
+                       break;
+            }
+            previousMove = currentMove;
+            firstTime = false;
+          }
+          else {
+            // Rotate Bottom Row
+            switch( currentMove - previousMove ) {
+              case 0 : break;
+              case 1 : makeMove(72);
+                       break;
+              case 2 : makeMove(73);
+                       break;
+              case 3 : makeMove(71);
+                       break;
+              default: System.out.println("Invalid case");
+                       break;
+            }
+            previousMove = currentMove;
+          }
+
+          makeMove(92); makeMove(62);
+          makeMove(92); makeMove(62);
+          makeMove(92); makeMove(62);
+          makeMove(92); makeMove(62);
+        } // End of For - Correct orientation
+
+        level = 0;
+        partialMovesMade.clear();
+        optimalSolution = false;
+        optimalPartialMovesMade.clear();
+        maximumDepthOfMoves = numberofPartialMovesToMake[15];
+        solved = rubikPartialSolver();
+        if(solved)
+        for(int thisMove:optimalPartialMovesMade)
+          makeMove(thisMove);
+      }
+
+      currentLevel = 16;
+    }
+
+    System.out.print(" Level " + (currentLevel-1) + " Solved! ");
+
+    // B. Solve Bottom Corner Pieces
+
+    return solved;
   }
 
   public static void main(String[] args) {
 
-    /*int firstArg = 0;
-    if (args.length > 0) {
-        try {
-            firstArg = Integer.parseInt(args[0]);
-        } catch (NumberFormatException e) {
-            System.err.println("Argument" + args[0] + " must be a 2-digit integer.");
-            System.exit(1);
-        }
-    }*/
+    boolean looper = true;
+    do {
+        makeMoveCount = 0;
 
-    // Copying Initial Position to Current Cube
-    for ( int i=0;i<3;i++ )
-      for ( int j=0;j<3;j++ )
-        for ( int k=0;k<3;k++ )
-          currentCube[i][j][k] = solvedCube[i][j][k];
+        // Copying Initial Position to Current Cube
+        for ( int i=0;i<3;i++ )
+         for ( int j=0;j<3;j++ )
+           for ( int k=0;k<3;k++ )
+             currentCube[i][j][k] = solvedCube[i][j][k];
 
-    // Scramble the Cube
-    scrambleCube(100);
+        // Scramble the Cube
+        scrambleCube(100);
 
-/*    System.out.println("Init : Rubik's Cube Solved : " + isCubeSolved());
+        Instant start = Instant.now();
+        looper = rubikSolverUsingSpeedCubing();
+        Instant end = Instant.now();
+        Duration timeElapsed = Duration.between(start, end);
+        System.out.println("Rubik's Cube Solved : " + looper + " Time taken: "+ timeElapsed.toMillis() +" milliseconds, "
+                           + "Count: " + makeMoveCount + " Ratio: " + (makeMoveCount/timeElapsed.toMillis()));
 
-    makeMove(31);
-    makeMove(52);
-    makeMove(63);
-    makeMove(73);
-    makeMove(11);
-    makeMove(31);
-    makeMove(12);
-    makeMove(32);
-    makeMove(33);
-    makeMove(62);
-
-    53 82 51 73 73 31 81
-    makeMove(53);
-    makeMove(82);
-    makeMove(51);
-    makeMove(31);
-    makeMove(82);
-
-/*  System.out.println("Solved : Rubik's Cube Solved : " + isCubeSolved());*/
-
-    // TODO Solve the Cube
-    Instant start = Instant.now();
-    System.out.println("Rubik's Cube Solved : " + rubikSolver());
-    Instant end = Instant.now();
-    Duration timeElapsed = Duration.between(start, end);
-    System.out.println("Time taken: "+ timeElapsed.toMillis() +" milliseconds");
-
-    System.out.print("Rubik's Cube Solution : ");
-    for(int currentMove:movesMade)
-      System.out.print(currentMove + " ");
-    System.out.println("");
-
-    System.out.println("");
-    System.out.println("");
-
-    //System.out.println("\n\nAfter Right Move : " + makeMove(firstArg));
-
-    /*for ( int i=0;i<3;i++ ){
-      for ( int j=0;j<3;j++ ){
-        for ( int k=0;k<3;k++ )
-          System.out.print(currentCube[i][j][k] + "\t");
-        System.out.println("");
-      }
-    }*/
+    }while(looper);
   }
 }

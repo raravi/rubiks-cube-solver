@@ -127,3 +127,448 @@ for(int i=0;i<3;i++){
 }
 
 ================================================================
+
+/* Brute Force --- Solve the Cube
+Instant start = Instant.now();
+System.out.println("Rubik's Cube Solved : " + rubikSolver());
+Instant end = Instant.now();
+Duration timeElapsed = Duration.between(start, end);
+System.out.println("Time taken: "+ timeElapsed.toMillis() +" milliseconds");
+
+System.out.print("Rubik's Cube Solution : ");
+for(int currentMove:movesMade)
+  System.out.print(currentMove + " ");
+System.out.println("");
+
+System.out.println("");
+System.out.println("");*/
+
+================================================================
+
+/*  System.out.println("Solved : Rubik's Cube Solved : " + isCubeSolved());*/
+
+================================================================
+
+/*for ( int i=0;i<3;i++ ){
+  for ( int j=0;j<3;j++ ){
+    for ( int k=0;k<3;k++ )
+      System.out.print(currentCube[i][j][k] + "\t");
+    System.out.println("");
+  }
+}*/
+
+================================================================
+
+/*int firstArg = 0;
+if (args.length > 0) {
+    try {
+        firstArg = Integer.parseInt(args[0]);
+    } catch (NumberFormatException e) {
+        System.err.println("Argument" + args[0] + " must be a 2-digit integer.");
+        System.exit(1);
+    }
+}*/
+
+//System.out.println("\n\nAfter Right Move : " + makeMove(firstArg));
+
+================================================================
+
+/*    53 82 51 73 73 31 81
+    makeMove(53);
+    makeMove(82);
+    makeMove(51);
+    makeMove(31);
+    makeMove(82);*/
+
+================================================================
+
+// Copying Initial Position to Current Cube
+for ( int i=0;i<3;i++ )
+  for ( int j=0;j<3;j++ )
+    for ( int k=0;k<3;k++ )
+      currentCube[i][j][k] = solvedCube[i][j][k];
+
+================================================================
+
+else if ( typeOfMove == "rotate" ) {
+  int newMoveToMake;
+
+  if ( partsToMove == 0 )
+    newMoveToMake = 40 + move;
+  else
+    newMoveToMake = (((moveToMake / 10) % 4) * 10) + move;
+
+  makeMove(82);
+  makeMove(newMoveToMake);
+  makeMove(81);
+}
+
+================================================================
+
+// else if ( typeOfMove == "rotate" ) {
+if ( move == 1 ) { // Counter Clockwise
+  if ( partsToMove == 0 ) { // Move Whole Cube
+      for ( int j = 0 ; j < 3 ; j++ ) {
+         tempOddRow[j]  = currentCube[j][oddMove[4]][oddMove[5]];
+         tempEvenRow[j] = currentCube[j][evenMove[4]][evenMove[5]];
+      }
+      for ( int i = 1 ; i < 4 ; i++ ) {
+        for ( int j = 0 ; j < 3 ; j++ ) {
+          currentCube[j][oddMove[i-1]][oddMove[i]]   = currentCube[j][oddMove[i]][oddMove[i+1]];
+          currentCube[j][evenMove[i-1]][evenMove[i]] = currentCube[j][evenMove[i]][evenMove[i+1]];
+        }
+      }
+      for ( int j = 0 ; j < 3 ; j++ ) {
+        currentCube[j][oddMove[3]][oddMove[4]]   = tempOddRow[j];
+        currentCube[j][evenMove[3]][evenMove[4]] = tempEvenRow[j];
+      }
+  }
+  else { // Move the part specified by 'partsToMove'
+
+      tempOddRow[partsToMove-1]  = currentCube[partsToMove-1][oddMove[4]][oddMove[5]];
+      tempEvenRow[partsToMove-1] = currentCube[partsToMove-1][evenMove[4]][evenMove[5]];
+
+      for ( int i = 1 ; i < 4 ; i++ ) {
+          currentCube[partsToMove-1][oddMove[i-1]][oddMove[i]]   = currentCube[partsToMove-1][oddMove[i]][oddMove[i+1]];
+          currentCube[partsToMove-1][evenMove[i-1]][evenMove[i]] = currentCube[partsToMove-1][evenMove[i]][evenMove[i+1]];
+      }
+      currentCube[partsToMove-1][oddMove[3]][oddMove[4]]   = tempOddRow[partsToMove-1];
+      currentCube[partsToMove-1][evenMove[3]][evenMove[4]] = tempEvenRow[partsToMove-1];
+
+  }
+  /* After Counter Clockwise Move
+  aeb     ab      abc ->  abc     bc      bcf ->  cab     cb      cbf
+  eb      b       bc  ->  ab      b       bf  ->  ab      b       bf
+  ebf     bf      bcf ->  aeb     eb      ebf ->  abe     be      bfe
+
+  ae      a       ac  ->  ac      c       cf  ->  ca      c       cf
+  e       abcdef  c   ->  a       aaaaaa  f   ->  a       cbfdae  f
+  ef      f       cf  ->  ae      e       ef  ->  ae      e       fe
+
+  ade     ad      acd ->  acd     cd      cdf ->  cda     cd      cfd
+  de      d       cd  ->  ad      d       df  ->  da      d       fd
+  def     df      cdf ->  ade     de      def ->  dae     de      fde*/
+
+  if(partsToMove == 0 || partsToMove == 1) {
+    currentCube[0][0][0] = currentCube[0][0][0].substring(2) + currentCube[0][0][0].substring(0,2);
+    currentCube[0][0][1] = currentCube[0][0][1].substring(1) + currentCube[0][0][1].substring(0,1);
+    currentCube[0][0][2] = currentCube[0][0][2].substring(1,2) + currentCube[0][0][2].substring(0,1) + currentCube[0][0][2].substring(2);
+
+    //currentCube[0][1][0] = currentCube[0][1][0].substring() + currentCube[0][1][0].substring();
+    //currentCube[0][1][1] = currentCube[0][1][1].substring() + currentCube[0][1][1].substring();
+    //currentCube[0][1][2] = currentCube[0][1][2].substring() + currentCube[0][1][2].substring();
+
+    currentCube[0][2][0] = currentCube[0][2][0].substring(0,1) + currentCube[0][2][0].substring(2) + currentCube[0][2][0].substring(1,2);
+    currentCube[0][2][1] = currentCube[0][2][1].substring(1) + currentCube[0][2][1].substring(0,1);
+    currentCube[0][2][2] = currentCube[0][2][2].substring(1) + currentCube[0][2][2].substring(0,1);
+  }
+  if(partsToMove == 0 || partsToMove == 2) {
+    currentCube[1][0][0] = currentCube[1][0][0].substring(1) + currentCube[1][0][0].substring(0,1);
+    //currentCube[1][0][1] = currentCube[1][0][1].substring() + currentCube[1][0][1].substring();
+    //currentCube[1][0][2] = currentCube[1][0][2].substring() + currentCube[1][0][2].substring();
+
+    //currentCube[1][1][0] = currentCube[1][1][0].substring() + currentCube[1][1][0].substring();
+    currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
+                           currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
+    //currentCube[1][1][2] = currentCube[1][1][2].substring() + currentCube[1][1][2].substring();
+
+    //currentCube[1][2][0] = currentCube[1][2][0].substring() + currentCube[1][2][0].substring();
+    //currentCube[1][2][1] = currentCube[1][2][1].substring() + currentCube[1][2][1].substring();
+    currentCube[1][2][2] = currentCube[1][2][2].substring(1) + currentCube[1][2][2].substring(0,1);
+
+  }
+  if(partsToMove == 0 || partsToMove == 3) {
+
+    currentCube[2][0][0] = currentCube[2][0][0].substring(1) + currentCube[2][0][0].substring(0,1);
+    //currentCube[2][0][1] = currentCube[2][0][1].substring() + currentCube[2][0][1].substring();
+    currentCube[2][0][2] = currentCube[2][0][2].substring(0,1) + currentCube[2][0][2].substring(2) + currentCube[2][0][2].substring(1,2);
+
+    currentCube[2][1][0] = currentCube[2][1][0].substring(1) + currentCube[2][1][0].substring(0,1);
+    //currentCube[2][1][1] = currentCube[2][1][1].substring() + currentCube[2][1][1].substring();
+    currentCube[2][1][2] = currentCube[2][1][2].substring(1) + currentCube[2][1][2].substring(0,1);
+
+    currentCube[2][2][0] = currentCube[2][2][0].substring(1,2) + currentCube[2][2][0].substring(0,1) + currentCube[2][2][0].substring(2);
+    //currentCube[2][2][1] = currentCube[2][2][1].substring() + currentCube[2][2][1].substring();
+    currentCube[2][2][2] = currentCube[2][2][2].substring(2) + currentCube[2][2][2].substring(0,2);
+  }
+}
+else if ( move == 2 ) { // Clockwise
+  if ( partsToMove == 0 ) { // Move Whole Cube
+    for ( int j = 0 ; j < 3 ; j++ ) {
+      tempOddRow[j]  = currentCube[j][oddMove[4]][oddMove[5]];
+      tempEvenRow[j] = currentCube[j][evenMove[4]][evenMove[5]];
+    }
+    for ( int i = 4 ; i > 1 ; i-- ) {
+      for ( int j = 0 ; j < 3 ; j++ ) {
+        currentCube[j][oddMove[i]][oddMove[i+1]]   = currentCube[j][oddMove[i-1]][oddMove[i]];
+        currentCube[j][evenMove[i]][evenMove[i+1]] = currentCube[j][evenMove[i-1]][evenMove[i]];
+      }
+    }
+    for ( int j = 0 ; j < 3 ; j++ ) {
+      currentCube[j][oddMove[1]][oddMove[2]]   = tempOddRow[j];
+      currentCube[j][evenMove[1]][evenMove[2]] = tempEvenRow[j];
+    }
+  }
+  else { // Move the part specified by 'partsToMove'
+
+    tempOddRow[partsToMove-1]  = currentCube[partsToMove-1][oddMove[4]][oddMove[5]];
+    tempEvenRow[partsToMove-1] = currentCube[partsToMove-1][evenMove[4]][evenMove[5]];
+
+    for ( int i = 4 ; i > 1 ; i-- ) {
+      currentCube[partsToMove-1][oddMove[i]][oddMove[i+1]]   = currentCube[partsToMove-1][oddMove[i-1]][oddMove[i]]; currentCube[partsToMove-1][evenMove[i]][evenMove[i+1]] = currentCube[partsToMove-1][evenMove[i-1]][evenMove[i]];
+    }
+
+    currentCube[partsToMove-1][oddMove[1]][oddMove[2]]   = tempOddRow[partsToMove-1];
+    currentCube[partsToMove-1][evenMove[1]][evenMove[2]] = tempEvenRow[partsToMove-1];
+
+  }
+
+  /* After Clockwise Move
+
+  aeb     ab      abc ->  ebf     eb      aeb   ->  efb     eb      eba
+  eb      b       bc  ->  bf      b       ab    ->  fb      b       ba
+  ebf     bf      bcf ->  bcf     bc      abc   ->  fbc     bc      bac
+
+  ae      a       ac  ->  ef      e       ae    ->  ef      e       ea
+  e       abcdef  c   ->  f       abcdef  a     ->  f       ebadfc  a
+  ef      f       cf  ->  cf      c       ac    ->  fc      c       ac
+
+  ade     ad      acd ->  def     de      ade   ->  edf     ed      ead
+  de      d       cd  ->  df      d       ad    ->  df      d       ad
+  def     df      cdf ->  cdf     cd      acd   ->  dfc     dc      adc */
+
+  if(partsToMove == 0 || partsToMove == 1) {
+    currentCube[0][0][0] = currentCube[0][0][0].substring(0,1) + currentCube[0][0][0].substring(2) + currentCube[0][0][0].substring(1,2);
+    //currentCube[0][0][1] = currentCube[0][0][1].substring(1) + currentCube[0][0][1].substring(0,1);
+    currentCube[0][0][2] = currentCube[0][0][2].substring(1) + currentCube[0][0][2].substring(0,1);
+
+    currentCube[0][1][0] = currentCube[0][1][0].substring(1) + currentCube[0][1][0].substring(0,1);
+    //currentCube[0][1][1] = currentCube[0][1][1].substring() + currentCube[0][1][1].substring();
+    currentCube[0][1][2] = currentCube[0][1][2].substring(1) + currentCube[0][1][2].substring(0,1);
+
+    currentCube[0][2][0] = currentCube[0][2][0].substring(2) + currentCube[0][2][0].substring(0,2);
+    //currentCube[0][2][1] = currentCube[0][2][1].substring() + currentCube[0][2][1].substring();
+    currentCube[0][2][2] = currentCube[0][2][2].substring(1,2) + currentCube[0][2][2].substring(0,1) + currentCube[0][2][2].substring(2);
+
+  }
+  if(partsToMove == 0 || partsToMove == 2) {
+    //currentCube[1][0][0] = currentCube[1][0][0].substring() + currentCube[1][0][0].substring();
+    //currentCube[1][0][1] = currentCube[1][0][1].substring() + currentCube[1][0][1].substring();
+    currentCube[1][0][2] = currentCube[1][0][2].substring(1) + currentCube[1][0][2].substring(0,1);
+
+    //currentCube[1][1][0] = currentCube[1][1][0].substring() + currentCube[1][1][0].substring();
+    currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
+                           currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
+    //currentCube[1][1][2] = currentCube[1][1][2].substring() + currentCube[1][1][2].substring();
+
+    currentCube[1][2][0] = currentCube[1][2][0].substring(1) + currentCube[1][2][0].substring(0,1);
+    //currentCube[1][2][1] = currentCube[1][2][1].substring() + currentCube[1][2][1].substring();
+    //currentCube[1][2][2] = currentCube[1][2][2].substring(1) + currentCube[1][2][2].substring(0,1);
+
+  }
+  if(partsToMove == 0 || partsToMove == 3) {
+
+    currentCube[2][0][0] = currentCube[2][0][0].substring(1,2) + currentCube[2][0][0].substring(0,1) + currentCube[2][0][0].substring(2);
+    currentCube[2][0][1] = currentCube[2][0][1].substring(1) + currentCube[2][0][1].substring(0,1);
+    currentCube[2][0][2] = currentCube[2][0][2].substring(2) + currentCube[2][0][2].substring(0,2);
+
+    //currentCube[2][1][0] = currentCube[2][1][0].substring() + currentCube[2][1][0].substring();
+    //currentCube[2][1][1] = currentCube[2][1][1].substring() + currentCube[2][1][1].substring();
+    //currentCube[2][1][2] = currentCube[2][1][2].substring() + currentCube[2][1][2].substring();
+
+    currentCube[2][2][0] = currentCube[2][2][0].substring(1) + currentCube[2][2][0].substring(0,1);
+    currentCube[2][2][1] = currentCube[2][2][1].substring(1) + currentCube[2][2][1].substring(0,1);
+    currentCube[2][2][2] = currentCube[2][2][2].substring(0,1) + currentCube[2][2][2].substring(2) + currentCube[2][2][2].substring(1,2);
+  }
+}
+else if ( move == 3 ) { // Inverse
+  if ( partsToMove == 0 ) { // Move Whole Cube
+    for ( int i = 0 ; i < 2 ; i++ ) {
+      for ( int j = 0 ; j < 3 ; j++ ) {
+
+        tempOddRow[j]  = currentCube[j][oddMove[i]][oddMove[i+1]];
+        tempEvenRow[j] = currentCube[j][evenMove[i]][evenMove[i+1]];
+
+        currentCube[j][oddMove[i]][oddMove[i+1]]   = currentCube[j][oddMove[i+2]][oddMove[i+3]];
+        currentCube[j][evenMove[i]][evenMove[i+1]] = currentCube[j][evenMove[i+2]][evenMove[i+3]];
+
+        currentCube[j][oddMove[i+2]][oddMove[i+3]]   = tempOddRow[j];
+        currentCube[j][evenMove[i+2]][evenMove[i+3]] = tempEvenRow[j];
+
+      }
+    }
+  }
+  else { // Move the part specified by 'partsToMove'
+    for ( int i = 0 ; i < 2 ; i++ ) {
+
+        tempOddRow[partsToMove-1]  = currentCube[partsToMove-1][oddMove[i]][oddMove[i+1]];
+        tempEvenRow[partsToMove-1] = currentCube[partsToMove-1][evenMove[i]][evenMove[i+1]];
+
+        currentCube[partsToMove-1][oddMove[i]][oddMove[i+1]]   = currentCube[partsToMove-1][oddMove[i+2]][oddMove[i+3]];
+        currentCube[partsToMove-1][evenMove[i]][evenMove[i+1]] = currentCube[partsToMove-1][evenMove[i+2]][evenMove[i+3]];
+
+        currentCube[partsToMove-1][oddMove[i+2]][oddMove[i+3]]   = tempOddRow[partsToMove-1];
+        currentCube[partsToMove-1][evenMove[i+2]][evenMove[i+3]] = tempEvenRow[partsToMove-1];
+
+    }
+  }
+
+  /* After Inverse Move
+
+  aeb     ab      abc ->  bcf     bf      ebf   ->  fcb     fb      fbe
+  eb      b       bc  ->  bc      b       eb    ->  cb      b       be
+  ebf     bf      bcf ->  abc     ab      aeb   ->  cba     ba      bea
+
+  ae      a       ac  ->  cf      f       ef    ->  fc      f       fe
+  e       abcdef  c   ->  c       abcdef  e     ->  c       fbedca  e
+  ef      f       cf  ->  ac      a       ae    ->  ca      a       ea
+
+  ade     ad      acd ->  cdf     df      def   ->  fdc     fd      fed
+  de      d       cd  ->  cd      d       de    ->  dc      d       ed
+  def     df      cdf ->  acd     ad      ade   ->  dca     da      eda */
+
+  if(partsToMove == 0 || partsToMove == 1) {
+    currentCube[0][0][0] = currentCube[0][0][0].substring(2) + currentCube[0][0][0].substring(1,2) + currentCube[0][0][0].substring(0,1);
+    currentCube[0][0][1] = currentCube[0][0][1].substring(1) + currentCube[0][0][1].substring(0,1);
+    currentCube[0][0][2] = currentCube[0][0][2].substring(2) + currentCube[0][0][2].substring(1,2) + currentCube[0][0][2].substring(0,1);
+
+    currentCube[0][1][0] = currentCube[0][1][0].substring(1) + currentCube[0][1][0].substring(0,1);
+    //currentCube[0][1][1] = currentCube[0][1][1].substring() + currentCube[0][1][1].substring();
+    currentCube[0][1][2] = currentCube[0][1][2].substring(1) + currentCube[0][1][2].substring(0,1);
+
+    currentCube[0][2][0] = currentCube[0][2][0].substring(2) + currentCube[0][2][0].substring(1,2) + currentCube[0][2][0].substring(0,1);
+    currentCube[0][2][1] = currentCube[0][2][1].substring(1) + currentCube[0][2][1].substring(0,1);
+    currentCube[0][2][2] = currentCube[0][2][2].substring(2) + currentCube[0][2][2].substring(1,2) + currentCube[0][2][2].substring(0,1);
+  }
+  if(partsToMove == 0 || partsToMove == 2) {
+    currentCube[1][0][0] = currentCube[1][0][0].substring(1) + currentCube[1][0][0].substring(0,1);
+    //currentCube[1][0][1] = currentCube[1][0][1].substring() + currentCube[1][0][1].substring();
+    currentCube[1][0][2] = currentCube[1][0][2].substring(1) + currentCube[1][0][2].substring(0,1);
+
+    //currentCube[1][1][0] = currentCube[1][1][0].substring() + currentCube[1][1][0].substring();
+    currentCube[1][1][1] = currentCube[1][0][1] + currentCube[0][1][1] + currentCube[1][1][2] +
+                           currentCube[2][1][1] + currentCube[1][1][0] + currentCube[1][2][1];
+    //currentCube[1][1][2] = currentCube[1][1][2].substring() + currentCube[1][1][2].substring();
+
+    currentCube[1][2][0] = currentCube[1][2][0].substring(1) + currentCube[1][2][0].substring(0,1);
+    //currentCube[1][2][1] = currentCube[1][2][1].substring() + currentCube[1][2][1].substring();
+    currentCube[1][2][2] = currentCube[1][2][2].substring(1) + currentCube[1][2][2].substring(0,1);
+  }
+  if(partsToMove == 0 || partsToMove == 3) {
+    currentCube[2][0][0] = currentCube[2][0][0].substring(2) + currentCube[2][0][0].substring(1,2) + currentCube[2][0][0].substring(0,1);
+    currentCube[2][0][1] = currentCube[2][0][1].substring(1) + currentCube[2][0][1].substring(0,1);
+    currentCube[2][0][2] = currentCube[2][0][2].substring(2) + currentCube[2][0][2].substring(1,2) + currentCube[2][0][2].substring(0,1);
+
+    currentCube[2][1][0] = currentCube[2][1][0].substring(1) + currentCube[2][1][0].substring(0,1);
+    //currentCube[2][1][1] = currentCube[2][1][1].substring() + currentCube[2][1][1].substring();
+    currentCube[2][1][2] = currentCube[2][1][2].substring(1) + currentCube[2][1][2].substring(0,1);
+
+    currentCube[2][2][0] = currentCube[2][2][0].substring(2) + currentCube[2][2][0].substring(1,2) + currentCube[2][2][0].substring(0,1);
+    currentCube[2][2][1] = currentCube[2][2][1].substring(1) + currentCube[2][2][1].substring(0,1);
+    currentCube[2][2][2] = currentCube[2][2][2].substring(2) + currentCube[2][2][2].substring(1,2) + currentCube[2][2][2].substring(0,1);
+  }
+}
+else
+  return false;
+
+================================================================
+
+// A. Solve Bottom Center Pieces
+solved = false;
+partialLevel = currentLevel;
+intermediateLevel = "BottomCenterPiece";
+if (isCubePartiallySolved(partialLevel) == true){
+  System.out.println("Level 12 Intermediate : Already Solved!");
+  solved = true;
+}
+else {
+  level = 0;
+  partialMovesMade.clear();
+  solved = rubikPartialSolver();
+  System.out.println("Level 12 Intermediate Solved : " + solved);
+  if(solved) {
+    // TODO Solve the remaining 3 Bottom Center Pieces
+  }
+}
+if(solved == false)
+  return solved;
+currentLevel++;
+
+================================================================
+
+for (int i=0 ; i<4 ; i++)
+  currentBottomCenterPieces[i] = solvedBottomCenterPieces[i];
+System.out.println("Solved: " + isCubePartiallySolvedForBottomCenterPieces());
+makeMoveForBottomCenterPieces(12);
+for (int i=0 ; i<4 ; i++)
+  System.out.print(currentBottomCenterPieces[i] + " ");
+System.out.println("");
+System.out.println("Solved: " + isCubePartiallySolvedForBottomCenterPieces());
+
+level = 0;
+partialMovesMade.clear();
+System.out.println("Solved: " + rubikPartialSolverForBottomCenterPieces());
+
+System.out.print("Rubik's Cube Solution : ");
+for(int currentMove:partialMovesMade)
+  System.out.print(currentMove + " ");
+System.out.println("");
+
+================================================================
+else if(intermediateLevel == "BottomCenterPiece") {
+  a = Integer.parseInt(cubePartiallySolved[partialLevel].substring(0,1));
+  b = Integer.parseInt(cubePartiallySolved[partialLevel].substring(1,2));
+  c = Integer.parseInt(cubePartiallySolved[partialLevel].substring(2));
+
+  if (solvedCube[a][b][c].contains(currentCube[a][b][c].substring(0,1)) == false ||
+      solvedCube[a][b][c].contains(currentCube[a][b][c].substring(1)) == false)
+    return false;
+}
+================================================================
+
+int counter = 0;
+do {
+  for (int j=0 ; j<4 ; j++)
+    currentBottomCenterPieces[j] = allBottomCenterPieces[counter][j];
+  counter++;
+  //System.out.println("Solved: " + isCubePartiallySolvedForBottomCenterPieces());
+  //makeMoveForBottomCenterPieces(1);
+  //scrambleCubeForBottomCenterPieces(30);
+  //for (int j=0 ; j<4 ; j++)
+  //  System.out.print(currentBottomCenterPieces[j] + " ");
+  //System.out.println("");
+  //System.out.println("Solved: " + isCubePartiallySolvedForBottomCenterPieces());
+
+
+  level = 0;
+  partialMovesMade.clear();
+  optimalSolution = false;
+  optimalPartialMovesMade.clear();
+  numberofMovesToMakeForBottomCenterPieces = numberofPartialMovesToMake[12];
+  boolean looper = rubikPartialSolverForBottomCenterPieces();
+  System.out.print(counter + "\tSolved: " + looper);
+
+  System.out.print(", Rubik's Cube Solution : ");
+  for(int currentMove:optimalPartialMovesMade)
+  //for(int currentMove:partialMovesMade)
+    System.out.print(currentMove + " ");
+  System.out.println("");
+}while(counter < 24);
+
+================================================================
+
+// System.out.print("Rubik's Cube Solution : ");
+// for(int currentMove:partialMovesMade)
+//   System.out.print(currentMove + " ");
+// System.out.println("");
+
+//System.out.println("");
+//System.out.println("");
+
+================================================================
+
+================================================================
+
+================================================================
+
+================================================================
