@@ -566,9 +566,57 @@ do {
 //System.out.println("");
 
 ================================================================
+private static String[][] allBottomCenterPieces          = new String[][]{{"b","c","d","e"},
+                                                                          {"b","c","e","d"},
+                                                                          {"b","d","c","e"},
+                                                                          {"b","d","e","c"},
+                                                                          {"b","e","c","d"},
+                                                                          {"b","e","d","c"},
+
+                                                                          {"c","b","d","e"},
+                                                                          {"c","b","e","d"},
+                                                                          {"c","d","b","e"},
+                                                                          {"c","d","e","b"},
+                                                                          {"c","e","b","d"},
+                                                                          {"c","e","d","b"},
+
+                                                                          {"d","b","c","e"},
+                                                                          {"d","b","e","c"},
+                                                                          {"d","c","b","e"},
+                                                                          {"d","c","e","b"},
+                                                                          {"d","e","b","c"},
+                                                                          {"d","e","c","b"},
+
+                                                                          {"e","b","c","d"},
+                                                                          {"e","b","d","c"},
+                                                                          {"e","c","b","d"},
+                                                                          {"e","c","d","b"},
+                                                                          {"e","d","b","c"},
+                                                                          {"e","d","c","b"}};
+================================================================
+
+// In Solvers
+
+int secondLastMove = 0;
+
+if(level > 2)
+  secondLastMove = movesMade.get(movesMade.size()-2);
+
+// if ( (secondLastMove % 10 == lastMove % 10) &&
+//      (lastMove % 10 == allPossibleMoves[i] % 10) &&
+//      (allPossibleMoves[i] % 10 == secondLastMove % 10) )
+//   if ( (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 6) ||
+//        (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 18))
+//     continue;
 
 ================================================================
 
-================================================================
+System.out.println("MCP: 1 intermediatePosition1: " + intermediatePosition1 + "," + optimalIntermediatePosition1
+                  + " intermediatePosition2: " + intermediatePosition2 + "," + optimalIntermediatePosition2);
+
+System.out.println("MCP: 2 intermediatePosition1: " + intermediatePosition1 + "," + optimalIntermediatePosition1
+                  + " intermediatePosition2: " + intermediatePosition2 + "," + optimalIntermediatePosition2);
+if (intermediatePosition1 != optimalIntermediatePosition1 || intermediatePosition2 != optimalIntermediatePosition2)
+  System.exit(0);
 
 ================================================================

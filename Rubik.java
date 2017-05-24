@@ -5,99 +5,73 @@ import java.time.Instant;
 
 public class Rubik{
 
-  private static int[] allPossibleMoves         = new int[]{11,12,13,21,22,23,31,32,33,41,42,43,51,52,53,61,62,63,71,72,73,81,82,83,
-                                                            91,92,93,101,102,103,111,112,113,121,122,123};
-  private static int[] allPossibleMovesReversal = new int[]{12,11,13,22,21,23,32,31,33,42,41,43,52,51,53,62,61,63,72,71,73,82,81,83,
-                                                            92,91,93,102,101,103,112,111,113,122,121,123};
+  // Used in All Solvers
+  private static String[][][] solvedCube                              = new String[][][]{{{"aeb",   "ab",    "abc"},  //1 - 0 0
+                                                                                          {"eb",    "b",     "bc"},   //2 - 0 1
+                                                                                          {"ebf",   "bf",    "bcf"}}, //3 - 0 2
+                                                                                         {{"ae",    "a",     "ac"},   //8 - 1 0
+                                                                                          {"e",     "abcdef","c"},    //Axis for Vertical move - 1 1
+                                                                                          {"ef",    "f",     "cf"}},  //4 - 1 2
+                                                                                         {{"ade",   "ad",    "acd"},  //7 - 2 0
+                                                                                          {"de",    "d",     "cd"},   //6 - 2 1
+                                                                                          {"def",   "df",    "cdf"}}};//5 - 2 2
+  private static String[][][] currentCube                             = new String[][][]{{{"aeb",   "ab",    "abc"},
+                                                                                          {"eb",    "b",     "bc"},
+                                                                                          {"ebf",   "bf",    "bcf"}},
+                                                                                         {{"ae",    "a",     "ac"},
+                                                                                          {"e",     "abcdef","c"},
+                                                                                          {"ef",    "f",     "cf"}},
+                                                                                         {{"ade",   "ad",    "acd"},
+                                                                                          {"de",    "d",     "cd"},
+                                                                                          {"def",   "df",    "cdf"}}};
+  private static int[] allPossibleMoves                               = new int[]{11,12,13,21,22,23,31,32,33,41,42,43,
+                                                                                  51,52,53,61,62,63,71,72,73,81,82,83,
+                                                                                  91,92,93,101,102,103,111,112,113,121,122,123};
+  private static int[] allPossibleMovesReversal                       = new int[]{12,11,13,22,21,23,32,31,33,42,41,43,
+                                                                                  52,51,53,62,61,63,72,71,73,82,81,83,
+                                                                                  92,91,93,102,101,103,112,111,113,122,121,123};
+  private static int level                                            = 0;
 
-  private static ArrayList<Integer> movesMade         = new ArrayList<Integer>();
-  private static ArrayList<Integer> partialMovesMade  = new ArrayList<Integer>();
+ // - Brute Forcing
+ // Used in rubikSolver()
+  private static ArrayList<Integer> movesMade                         = new ArrayList<Integer>();
+  private static int numberofMovesToMake                              = 5;
 
-  private static int level                      = 0;
-  private static int numberofMovesToMake        = 5;
+  // - Solving by Parts - Speed Cubing Technique
+  // --- Used in rubikPartialSolver(), rubikPartialSolverForBottomCenterPieces() & rubikSolverUsingSpeedCubing()
+  private static ArrayList<Integer> partialMovesMade                  = new ArrayList<Integer>();
+  private static int partialLevel                                     = 0;
+  private static String intermediateLevel                             = "";
+  private static boolean intermediatePosition1                        = false;
+  private static boolean intermediatePosition2                        = false;
+  private static String[] cubePartiallySolved                         = new String[]{"001", "102", "201", "100",  // Top Center Pieces
+                                                                                     "000", "002", "202", "200",  // Top Corner Pieces
+                                                                                     "010", "012", "212", "210",  // Middle Center Pieces
+                                                                                     "021", "122", "221", "120",  // Bottom Center Pieces
+                                                                                     "020", "022", "222", "220"}; // Bottom Corner Pieces
+  private static String[][] intermediateLevelForTopCornerPieces       = new String[][]{{"022", "020", "022", "020"},
+                                                                                       {"220", "222", "220", "222"}};
+  private static String[][] intermediateLevelForMiddleCenterPieces    = new String[][]{{"021", "122", "221", "120"},
+                                                                                       {"120", "021", "122", "221"}};
+  private static int[] numberofPartialMovesToMake                     = new int[]{ 4,4,4,4,
+                                                                                   4,4,5,5,
+                                                                                   1,1,1,1,
+                                                                                   4,5,5,2,
+                                                                                   5,5,5,5};
+  private static int maximumDepthOfMoves                              = 0;
+  private static boolean optimalSolution                              = false;
+  private static ArrayList<Integer> optimalPartialMovesMade           = new ArrayList<Integer>();
 
-  private static int partialLevel               = 0;
-  private static String intermediateLevel       = "";
+  // - Solving by Parts - Speed Cubing Technique
+  // --- For Bottom Center Pieces
+  private static ArrayList<Integer> movesToRotate                     = new ArrayList<Integer>();
+  private static String[] solvedBottomCenterPieces                    = new String[]{"b","c","d","e"};
+  private static String[] currentBottomCenterPieces                   = new String[4];
+  private static int[] allPossibleMovesForBottomCenterPieces          = new int[]{1,2,3,11,12};//,21,22,31,32,41,42};
+  private static int[] allPossibleMovesReversalForBottomCenterPieces  = new int[]{2,1,3,12,11};//,22,21,32,31,42,41};
 
-  private static int makeMoveCount              = 0;
-  private static boolean intermediatePosition1 = false, intermediatePosition2 = false;
-
-  private static String[][][] solvedCube = new String[][][]{{{"aeb",   "ab",    "abc"},  //1 - 0 0
-                                                             {"eb",    "b",     "bc"},   //2 - 0 1
-                                                             {"ebf",   "bf",    "bcf"}}, //3 - 0 2
-
-                                                            {{"ae",    "a",     "ac"},   //8 - 1 0
-                                                             {"e",     "abcdef","c"},    //Axis for Vertical move - 1 1
-                                                             {"ef",    "f",     "cf"}},  //4 - 1 2
-
-                                                            {{"ade",   "ad",    "acd"},  //7 - 2 0
-                                                             {"de",    "d",     "cd"},   //6 - 2 1
-                                                             {"def",   "df",    "cdf"}}};//5 - 2 2
-
-  private static String[][][] currentCube = new String[][][]{{{"aeb",   "ab",    "abc"},
-                                                              {"eb",    "b",     "bc"},
-                                                              {"ebf",   "bf",    "bcf"}},
-                                                             {{"ae",    "a",     "ac"},
-                                                              {"e",     "abcdef","c"},
-                                                              {"ef",    "f",     "cf"}},
-                                                             {{"ade",   "ad",    "acd"},
-                                                              {"de",    "d",     "cd"},
-                                                              {"def",   "df",    "cdf"}}};
-
-  private static String[] cubePartiallySolved = new String[]{"001", "102", "201", "100",  // Top Center Pieces
-                                                             "000", "002", "202", "200",  // Top Corner Pieces
-                                                             "010", "012", "212", "210",  // Middle Center Pieces
-                                                             "021", "122", "221", "120",  // Bottom Center Pieces
-                                                             "020", "022", "222", "220"}; // Bottom Corner Pieces
-
-  private static String[][] intermediateLevelForTopCornerPieces = new String[][]{{"022", "020", "022", "020"},
-                                                                                 {"220", "222", "220", "222"}};
-
-  private static String[][] intermediateLevelForMiddleCenterPieces = new String[][]{{"021", "122", "221", "120"},
-                                                                                    {"120", "021", "122", "221"}};
-
-  private static int[] numberofPartialMovesToMake = new int[]{ 4,4,4,4,
-                                                               4,4,5,5,
-                                                               5,5,5,5,
-                                                               4,5,5,2,
-                                                               5,5,5,5};
-
-  private static int maximumDepthOfMoves        = 0;
-
-  private static boolean optimalSolution                             = false;
-  private static ArrayList<Integer> optimalPartialMovesMade          = new ArrayList<Integer>();
-  private static ArrayList<Integer> movesToRotate                    = new ArrayList<Integer>();
-  private static String[] solvedBottomCenterPieces                   = new String[]{"b","c","d","e"};
-  private static String[] currentBottomCenterPieces                  = new String[4];
-  private static int[] allPossibleMovesForBottomCenterPieces         = new int[]{1,2,3,11,12};//,21,22,31,32,41,42};
-  private static int[] allPossibleMovesReversalForBottomCenterPieces = new int[]{2,1,3,12,11};//,22,21,32,31,42,41};
-  private static String[][] allBottomCenterPieces          = new String[][]{{"b","c","d","e"},
-                                                                            {"b","c","e","d"},
-                                                                            {"b","d","c","e"},
-                                                                            {"b","d","e","c"},
-                                                                            {"b","e","c","d"},
-                                                                            {"b","e","d","c"},
-
-                                                                            {"c","b","d","e"},
-                                                                            {"c","b","e","d"},
-                                                                            {"c","d","b","e"},
-                                                                            {"c","d","e","b"},
-                                                                            {"c","e","b","d"},
-                                                                            {"c","e","d","b"},
-
-                                                                            {"d","b","c","e"},
-                                                                            {"d","b","e","c"},
-                                                                            {"d","c","b","e"},
-                                                                            {"d","c","e","b"},
-                                                                            {"d","e","b","c"},
-                                                                            {"d","e","c","b"},
-
-                                                                            {"e","b","c","d"},
-                                                                            {"e","b","d","c"},
-                                                                            {"e","c","b","d"},
-                                                                            {"e","c","d","b"},
-                                                                            {"e","d","b","c"},
-                                                                            {"e","d","c","b"}};
+  // Testing Purposes
+  private static int makeMoveCount                                    = 0;
 
   private static boolean isCubeSolved() {
 
@@ -665,23 +639,19 @@ public class Rubik{
 
   private static boolean rubikSolver() {
     // Depth First Search(DFS) with Depth limited
+    // Returns first solution
+    // Not Optimal
+
     level++;
     int lastMove = 0;
-    int secondLastMove = 0;
+
     if(level > 1)
       lastMove = movesMade.get(movesMade.size()-1);
-    if(level > 2)
-      secondLastMove = movesMade.get(movesMade.size()-2);
+
     for ( int i = 0 ; i < allPossibleMoves.length ; i++ ) {
       // Trim the Moves
       if ( lastMove / 10 == allPossibleMoves[i] / 10 )
         continue;
-      // if ( (secondLastMove % 10 == lastMove % 10) &&
-      //      (lastMove % 10 == allPossibleMoves[i] % 10) &&
-      //      (allPossibleMoves[i] % 10 == secondLastMove % 10) )
-      //   if ( (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 6) ||
-      //        (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 18))
-      //     continue;
 
       // Make the move!
       makeMove(allPossibleMoves[i]);
@@ -706,25 +676,24 @@ public class Rubik{
 
   private static boolean rubikPartialSolver() {
     // Depth First Search(DFS) with Depth limited
+    // Returns Optimal Solution
+
     level++;
     int lastMove = 0;
-    int secondLastMove = 0;
+
     if(level > 1)
       lastMove = partialMovesMade.get(partialMovesMade.size()-1);
-    if(level > 2)
-      secondLastMove = partialMovesMade.get(partialMovesMade.size()-2);
+
     for ( int i = 0 ; i < allPossibleMoves.length ; i++ ) {
+      // Trim the Moves
       if ( lastMove / 10 == allPossibleMoves[i] / 10 )
         continue;
-      // if ( (secondLastMove % 10 == lastMove % 10) &&
-      //      (lastMove % 10 == allPossibleMoves[i] % 10) &&
-      //      (allPossibleMoves[i] % 10 == secondLastMove % 10) )
-      //   if ( (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 6) ||
-      //        (secondLastMove / 10 + lastMove / 10 + allPossibleMoves[i] / 10 == 18))
-      //     continue;
+
+      // Make the move!
       makeMove(allPossibleMoves[i]);
       partialMovesMade.add(allPossibleMoves[i]);
 
+      // Terminating Condition
       if ( isCubePartiallySolved(partialLevel) == true ) {
         optimalSolution = true;
         optimalPartialMovesMade = new ArrayList<Integer>(partialMovesMade);
@@ -736,10 +705,12 @@ public class Rubik{
         return true;
       }
 
+      // Recursive Call
       if ( level < maximumDepthOfMoves)
         rubikPartialSolver();
 
-      makeMove(allPossibleMovesReversal[i]); // Unmake the previous move!
+        // Unmake the previous move!
+        makeMove(allPossibleMovesReversal[i]);
       partialMovesMade.remove(partialMovesMade.size()-1);
     }
     level--;
@@ -821,23 +792,25 @@ public class Rubik{
   }
 
   private static boolean rubikPartialSolverForBottomCenterPieces() {
+    // Depth First Search(DFS) with Depth limited
+    // Returns Optimal Solution
+
     level++;
     int lastMove = 30;
-    int secondLastMove = 30;
+
     if(level > 1)
       lastMove = partialMovesMade.get(partialMovesMade.size()-1);
-    if(level > 2)
-      secondLastMove = partialMovesMade.get(partialMovesMade.size()-2);
 
     for (int i=0; i<allPossibleMovesForBottomCenterPieces.length ; i++) {
+      // Trim the Moves
       if ( lastMove / 10 == allPossibleMovesForBottomCenterPieces[i] / 10 )
         continue;
 
-      // Make Move
+      // Make the move!
       makeMoveForBottomCenterPieces(allPossibleMovesForBottomCenterPieces[i]);
       partialMovesMade.add(allPossibleMovesForBottomCenterPieces[i]);
 
-      // Check if solved
+      // Terminating Condition
       if (isCubePartiallySolvedForBottomCenterPieces() == true){
         optimalSolution = true;
         optimalPartialMovesMade = new ArrayList<Integer>(partialMovesMade);
@@ -849,12 +822,11 @@ public class Rubik{
         return true;
       }
 
+      // Recursive Call
       if (level < maximumDepthOfMoves)
         rubikPartialSolverForBottomCenterPieces();
-        //if (rubikPartialSolverForBottomCenterPieces() == true)
-        //  return true;
 
-      // Unmake Move
+      // Unmake the previous move!
       makeMoveForBottomCenterPieces(allPossibleMovesReversalForBottomCenterPieces[i]);
       partialMovesMade.remove(partialMovesMade.size()-1);
     }
@@ -1008,6 +980,8 @@ public class Rubik{
             makeMove(currentMove);
         }
 
+        // Note: intermediatePosition1 & intermediatePosition2 retain the value for solution only because the solution is one move long.
+        // Which mens the recursive call returns right after finding the solution.
         if(solved) {
           noOfRotations = partialLevel - 9;
           switch(noOfRotations) {
@@ -1090,7 +1064,6 @@ public class Rubik{
         solved = rubikPartialSolverForBottomCenterPieces();
 
         if(solved) {
-
           // Make moves for it
           for ( int currentMove:optimalPartialMovesMade ) {
             switch(currentMove) {
@@ -1131,15 +1104,8 @@ public class Rubik{
         int b = Integer.parseInt(cubePartiallySolved[i].substring(1,2));
         int c = Integer.parseInt(cubePartiallySolved[i].substring(2));
 
-        if (solvedCube[a][b][c].equals(currentCube[a][b][c]) == false) {
-          if(firstTime == true) {
-            movesToRotate.add(i-12);
-            firstTime = false;
-          }
-          else {
-            movesToRotate.add(i-12);
-          }
-        }
+        if (solvedCube[a][b][c].equals(currentCube[a][b][c]) == false)
+          movesToRotate.add(i-12);
       }
 
       if (movesToRotate.size() > 0) {
@@ -1196,6 +1162,8 @@ public class Rubik{
           makeMove(thisMove);
       }
 
+      if(solved == false)
+        return solved;
       currentLevel = 16;
     }
 
